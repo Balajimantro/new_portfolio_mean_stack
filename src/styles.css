@@ -1,0 +1,173 @@
+/* You can add global styles to this file, and also import other style files */
+:root {
+    --font-sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    --body-background: #f3f3f3;
+    --color-red-500: oklch(63.7% .237 25.331);
+    --color-orange-500: oklch(70.5% .213 47.604);
+    --color-green-500: oklch(72.3% .219 149.579);
+    --color-emerald-500: oklch(69.6% .17 162.48);
+    --color-cyan-500: oklch(71.5% .143 215.221);
+    --color-blue-50: oklch(97% .014 254.604);
+    --color-blue-200: oklch(88.2% .059 254.128);
+    --color-blue-300: oklch(80.9% .105 251.813);
+    --color-blue-400: oklch(70.9% .180 255.813);
+    --color-blue-500: oklch(62.3% .214 259.815);
+    --color-blue-600: oklch(54.6% .245 262.881);
+    --color-purple-300: oklch(82.7% .119 306.383);
+    --color-purple-500: oklch(62.7% .265 303.9);
+    --color-purple-600: oklch(55.8% .288 302.321);
+    --color-pink-500: oklch(65.6% .241 354.308);
+    --color-slate-50: oklch(98.4% .003 247.858);
+    --color-slate-100: oklch(96.8% .007 247.896);
+    --color-slate-300: oklch(86.9% .022 252.894);
+    --color-slate-600: oklch(44.6% .043 257.281);
+    --color-slate-700: oklch(37.2% .044 257.287);
+    --color-slate-900: oklch(20.8% .042 265.755);
+    --color-gray-100: oklch(96.7% .003 264.542);
+    --color-black: oklch(0.21 0 0);
+    --color-white: #fff;
+    --font-weight-bold: 700;
+    --font-weight-semi-bold: 600;
+    --font-weight-medium: 500;
+    --default-box-shadow: 0 10px 15px -3px rgba(0, 0, 0.2, 0.2);
+    --default-hover-box-shadow: 0px 8px 16px 8px rgba(49, 49, 49, 0.2);;
+    --header-height: 0px;
+}
+
+body { 
+    margin: 0;
+    padding: 0 !important;
+    font-family: var(--font-san);
+    background-color: var(--body-background) !important;
+}
+
+body .navbar_tag_parent {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+
+    background-color: rgb(250 242 255 / 80%);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--color-purple-300);
+}
+
+body #Projects {
+    display: block;
+    background-color: var(--color-white) !important;
+}
+
+.section_header_wrapper {
+    margin-bottom: 16px;
+    text-align: center;
+    font-family: var(--font-sans);
+}
+
+.section_title {
+    color: var(--color-black);
+    font-family: var(--font-sans);
+}
+
+.section_title_highlight {
+    font-family: var(--font-sans);
+    padding-left: 5px;
+    webkit-background-clip: text;
+    background-clip: text;
+    font-weight: var(--font-weight-semi-bold);
+    color: #0000;
+    background-image: linear-gradient(to right, var(--color-purple-600),  var(--color-blue-600) );
+}
+
+.section_description {
+    text-align: center;
+    font-family: var(--font-sans);
+    color: var(--color-slate-600);
+}
+
+@media (min-width: 357px){
+    .container, .container-lg, .container-md, .container-sm {
+        max-width: 100% !important;
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+    }
+
+    .section_header_wrapper {
+        font-size: 32px;
+        line-height: 32px;
+    } 
+
+    .section_description {
+        font-size: 18px;
+        margin-bottom: 32px;
+    }
+}
+
+/* Small devices (landscape phones, 576px and up) */
+@media (min-width: 576px) { 
+    .container, .container-lg, .container-md, .container-sm {
+        max-width: 100% !important;
+        padding-left: 24px !important;
+        padding-right: 24px !important;
+    }
+}
+
+/* // Medium devices (tablets, 768px and up) */
+@media (min-width: 768px) { 
+    .container, .container-lg, .container-md, .container-sm {
+        max-width: 100% !important;
+    }
+
+    .section_header_wrapper {
+        font-size: 42px;
+        line-height: 42px;
+    }  
+
+    .section_description {
+        font-size: 24px;
+        margin-bottom: 50px;
+    }
+}
+
+/* // Large devices (desktops, 992px and up) */
+@media (min-width: 992px) { 
+    .container, .container-lg, .container-md, .container-sm {
+        max-width: 960px !important;
+    }
+
+    .section_header_wrapper {
+        font-size: 48px;
+        line-height: 48px;
+    }
+
+    .section_description {
+        font-size: 24px;
+    }
+}
+
+/* // Extra large devices (large desktops, 1200px and up) */
+@media (min-width: 1200px) { 
+    .container, .container-lg, .container-md, .container-sm {
+        max-width: 1140px !important;
+    }
+
+    .section_header_wrapper {
+        font-size: 52px;
+        line-height: 52px;
+    }
+}
+
+/* // Extra large devices (large desktops, 1200px and up) */
+@media (min-width: 1250px) { 
+    .container, .container-lg, .container-md, .container-sm {
+        max-width: 1200px !important;
+    }
+}
+
+/* // Extra large devices (large desktops, 1200px and up) */
+@media (min-width: 1400px) { 
+    .container, .container-lg, .container-md, .container-sm {
+        max-width: 1320px !important;
+    }
+}

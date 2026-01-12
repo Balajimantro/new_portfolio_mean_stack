@@ -1,0 +1,35 @@
+.navbar_header_portfolio {
+    webkit-background-clip: text;
+    background-clip: text;
+    font-size: 24px;
+    font-weight: var(--font-weight-bold);
+    color: #0000;
+    background-image: linear-gradient(to right, var(--color-purple-600),  var(--color-blue-600) );
+}
+
+.navbar_parent_wrapper {
+    background: transparent;
+    width: 100%;
+    padding: 12px;
+}
+
+.navbar_link_item_parent {
+    gap: 32px;
+}
+
+.navbar_link_item.active .navbar_link {
+    webkit-background-clip: text;
+    background-clip: text;
+    color: #0000 !important;
+    background-image: linear-gradient(to right, var(--color-purple-600),  var(--color-blue-600) );
+}
+
+.navbar_link {
+    color: var(--color-slate-600);
+    font-weight: var(--font-weight-medium);
+    font-size: 16px;
+    cursor: pointer;
+    line-height: 1.5;
+
+    text-decoration: none;
+}

@@ -1,0 +1,131 @@
+.project_container {
+    padding-top: 50px;
+    padding-bottom: 80px;
+}
+
+.project_card_container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+.project_card_parent {
+    border-radius: 12px;
+    box-shadow: var(--default-box-shadow);
+    transform: all 0.3s ease-in-out;
+}
+
+.project_card_parent.hovered {
+    box-shadow: var(--default-hover-box-shadow) !important;
+}
+
+.project_card_parent.hovered .project_card_image {
+    transform: scale(1.15);
+    opacity: 0.9;
+}
+
+.project_card_image_wrapper {
+    overflow: hidden;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+}
+
+.project_card_image {
+    width: 100%;
+    max-height: 220px;
+    object-fit: cover;
+    transition: all 0.3s ease-in-out;
+}
+
+.project_card_body_wrapper {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    overflow: hidden;
+}
+
+.project_card_title {
+    color: var(--color-black);
+    line-height: 28px;
+    font-family: var(--font-weight-medium);
+    font-family: var(--font-sans);
+    font-size: 20px;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.project_card_description {
+    color: var(--color-slate-600);
+    font-family: var(--font-sans);
+    font-size: 14px;
+}
+
+.project_card_technology_wrapper {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-wrap: wrap;
+}
+
+.project_card_technology_box {
+    color: var(--color-blue-600);
+    font-size: 12px;
+    font-family: var(--font-sans);
+    line-height: 12px;
+    padding: 5px 10px;
+    border-radius: 24px;
+    background-color: var(--color-blue-50)
+}
+
+.project_card_buttons_wrapper {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.project_card_btn_git {
+    padding: 8px 16px;
+    border-color: var(--color-slate-300);
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 12px;
+    font-size: 14px;
+    cursor: pointer;
+    color: var(--color-black);
+}
+
+.project_card_btn_git:hover {
+    color: var(--color-blue-600) !important;
+    border-color: var(--color-blue-600) !important;
+}
+
+.project_card_btn_demo {
+    border-radius: 12px;
+    border: none;
+    background-image: linear-gradient(to right, var(--color-purple-600), var(--color-blue-600));
+    color: var(--color-white);
+    font-weight: var(--font-weight-semi-bold);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 8px 16px;
+    font-size: 14px;
+}
+
+.project_card_btn_demo:hover {
+    box-shadow: var(--default-hover-box-shadow);
+}
+
+@media (min-width: 340px) {
+    .project_card_container {
+        row-gap: 24px;
+    }
+}
+
+@media (min-width: 768px) {
+    .project_card_container {
+        row-gap: 32px;
+        column-gap: 32px;
+    }
+}

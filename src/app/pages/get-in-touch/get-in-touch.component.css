@@ -1,0 +1,242 @@
+.getInTouch_container {
+    padding-top: 50px;
+    padding-bottom: 80px;
+}
+
+.getInTouch_contact_info_wrapper {
+   display: flex;
+   flex-direction: column;
+   gap: 24px;
+}
+
+.getInTouch_contact_info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 24px;
+    border-radius: 24px;
+    background-color: var(--color-white);
+    box-shadow: var(--default-box-shadow);
+    overflow: scroll;
+
+    scrollbar-width: auto;
+    scrollbar-color: var(--color-purple-600) transparent;
+    transition: all 0.3s ease;
+}
+
+.getInTouch_contact_info.hovered {
+    box-shadow: var(--default-hover-box-shadow) !important;
+}
+
+.getInTouch_contact_info.hovered
+.getInTouch_contact_info_left_container svg {
+  transform: scale(1.15);
+  transition: transform 0.3s ease;
+}
+
+.getInTouch_contact_info_right_container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.getInTouch_contact_info_left_container {
+    padding: 12px;
+    background-image: linear-gradient(to right, var(--color-blue-600),  var(--color-purple-600) );
+    border-radius: 12px;
+}
+
+.getInTouch_contact_info_label {
+    font-size: 18px;
+    color: var(--color-black);
+    line-height: 28px;
+    margin-bottom: 4px;
+    font-family: var(--font-sans);
+}
+
+.getInTouch_contact_info_value {
+    font-size: 16px;
+    color: var(--color-slate-600);
+    line-height: 19px;
+    font-family: var(--font-sans);
+}
+
+.getInTouch_contact_info_why_Work_with_me_wrapper {
+    width: 100%;
+    background-image: linear-gradient(to right, var(--color-blue-600),  var(--color-purple-600) );
+    border-radius: 24px;
+    box-shadow: var(--default-box-shadow);
+    padding: 24px;
+}
+
+.getInTouch_contact_info_why_Work_with_me_title {
+    color: var(--color-white);
+    font-weight: var(--font-weight-medium);
+    font-size: 24px;
+    margin-bottom: 16px;
+    font-family: var(--font-sans);
+}
+
+.getInTouch_contact_info_why_Work_with_me_value_parent {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.getInTouch_contact_info_why_Work_with_me_value_wrapper {
+    display: flex;
+    gap: 10px;
+}
+
+.getInTouch_contact_info_why_Work_with_me_value {
+    color: var(--color-white);
+    line-height: 24px;
+    font-size: 16px;
+    white-space: break-space;
+    font-family: var(--font-sans);
+}
+
+.getInTouch_contact_info_why_Work_with_me_tick {
+    color: var(--color-white);
+}
+
+.getInTouch_contact_form_wrapper {
+    border-radius: 24px;
+    background-color: var(--color-white);
+    box-shadow: var(--default-box-shadow);
+    width: 100%;
+    position: relative;
+}
+
+.getInTouch_contach_form_label {
+    color: var(--color-slate-600);
+    font-size: 16px;
+    line-height: 24px;
+    margin-bottom: 10px;
+    font-weight: var(--font-weight-medium);
+    font-family: var(--font-sans);
+}
+
+.getInTouch_contach_form_input, .getInTouch_contach_form_textarea {
+    width: 100%;
+    border-color: var(--color-slate-300);
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 12px;
+    padding: 10px;
+    outline: none;
+    font-family: var(--font-sans);
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.getInTouch_contach_form_input_error {
+    border-color: var(--color-red-500) !important;
+}
+
+.getInTouch_contach_form_subject_input_wrapper, .getInTouch_contach_form_message_input_wrapper {
+    margin-bottom: 24px;
+}
+
+.getInTouch_contach_form_button_wrapper {
+    width: 100%;
+    padding: 16px 24px;
+    background-image: linear-gradient(to right, var(--color-blue-600),  var(--color-purple-600) );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    border-radius: 12px;
+    cursor: pointer;
+}
+
+.getInTouch_contach_form_button_wrapper:hover {
+    box-shadow: var(--default-hover-box-shadow);
+}
+
+.getInTouch_contach_form_button_wrapper svg {
+    color: var(--color-white);
+}
+
+.getInTouch_contach_form_button_text {
+    font-weight: var(--font-weight-medium);
+    color: var(--color-white);
+    font-size: 18px;
+    font-family: var(--font-sans);
+}
+
+.getInTouch_contact_form_saved {
+    font-weight: var(--font-weight-medium);
+    color: var(--color-white);
+    background: var(--color-green-500);
+    font-size: 14px;
+    font-family: var(--font-sans);
+    position: absolute;
+    top: 0px;
+    right: 1px;
+    border-radius: 24px;
+    padding: 10px 20px;
+    box-shadow: var(--default-hover-box-shadow);
+}
+
+
+@media (min-width: 375px) {
+    .getInTouch_contach_form_first_row_wrapper {
+        display: grid;
+        grid-template-columns: repeat(1, 1fr);
+        gap: 24px;
+        margin-bottom: 24px;
+    }
+    
+    .getInTouch_contact_form_wrapper {
+        padding: 16px;
+        margin-top: 32px;
+    }
+
+    .getInTouch_contach_form_textarea {
+        height: 110px;
+    }
+
+    .getInTouch_contact_info_why_Work_with_me_wrapper {
+        padding: 24px;
+    }
+}
+
+@media (min-width: 768px) {
+    .getInTouch_contact_form_wrapper {
+        padding: 24px;
+        margin-top: 0px;
+    }
+
+    .getInTouch_contach_form_textarea {
+        height: 130px;
+    }
+
+    .getInTouch_contact_form {
+        padding-left: 24px;
+    }
+}
+
+@media (min-width: 992px) {
+    .getInTouch_contach_form_first_row_wrapper {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 24px;
+        margin-bottom: 24px;
+    }
+
+    .getInTouch_contact_form_wrapper {
+        padding: 32px;
+    }
+
+    .getInTouch_contact_form {
+        padding-left: 32px;
+    }
+
+    .getInTouch_contach_form_textarea {
+        height: 170px;
+    }
+}

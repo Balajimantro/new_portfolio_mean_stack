@@ -1,0 +1,90 @@
+
+<div class="container getInTouch_container">
+    <div class="section_header_wrapper">
+        <span class="section_title">Get In</span>
+        <span class="section_title_highlight">Get In</span>
+    </div>
+
+    <div class="section_description">{{getInTouchDescription}}</div>
+
+    <div class="row g-0">
+        <div class="col-lg-4 col-md-5 col-sm-12">
+            <div class="getInTouch_contact_info_wrapper">
+                @for(contact of contactInfo; track $index; let i = $index) {
+                    <div class="getInTouch_contact_info" (mouseenter)="mouseHoveredContactInforIndex(i)" (mouseleave)="mouseLeavedContactInforIndex()" [ngClass]=" hoveredContactInforIndex === i ? 'hovered' : '' ">
+                        <div class="getInTouch_contact_info_left_container">
+                            @if(contact.label === 'Email') {
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-mail text-white"><rect width="20" height="16" x="2" y="4" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg>
+                            }
+                            @if(contact.label === 'Phone') {
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-phone text-white"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                            }
+                            @if(contact.label === 'Location') {
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin text-white"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                            }
+                        </div>
+
+                        <div class="getInTouch_contact_info_right_container">
+                            <div class="getInTouch_contact_info_label">{{contact.label}}</div>
+                            <div class="getInTouch_contact_info_value">{{contact.value}}</div>
+                        </div>
+                    </div>
+                }
+
+                <div class="getInTouch_contact_info_why_Work_with_me_wrapper">
+                    <div class="getInTouch_contact_info_why_Work_with_me_title">Why Work With Me?</div>
+                    <div class="getInTouch_contact_info_why_Work_with_me_value_parent">
+                        @for(work of whyWorkWithMe; track $index) {
+                            <div class="getInTouch_contact_info_why_Work_with_me_value_wrapper"> 
+                                <div class="getInTouch_contact_info_why_Work_with_me_tick">✓</div>
+                                <div class="getInTouch_contact_info_why_Work_with_me_value">{{work}}</div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8 col-md-7 col-sm-12 getInTouch_contact_form">
+            <div class="getInTouch_contact_form_wrapper" id="getInTouch_contact_form_id">
+                <form [formGroup]="contactFrom" (keydown.enter)="$event.preventDefault()">
+                    <div class="getInTouch_contach_form_first_row_wrapper">
+                        <div class="getInTouch_contach_form_input_wrapper">
+                            <label for="getInTouchContactFormName" class="getInTouch_contach_form_label">Your Name<span>*</span></label>
+                            <input type="text" id="getInTouchContactFormName" placeholder="Enter Your Name" class="getInTouch_contach_form_input"
+                                formControlName="name" [ngClass]="name?.invalid && (name?.dirty || name?.touched) ? 'getInTouch_contach_form_input_error' : ''">
+                        </div>
+
+                        <div class="getInTouch_contach_form_input_wrapper">
+                            <label for="getInTouchContactFormEmail" class="getInTouch_contach_form_label">Your Email<span>*</span></label>
+                            <input type="mail" id="getInTouchContactFormEmail" placeholder="Enter Your Email" class="getInTouch_contach_form_input"
+                            formControlName="email" [ngClass]="email?.invalid && (email?.dirty || email?.touched) ? 'getInTouch_contach_form_input_error' : ''">
+                        </div>
+                    </div>
+
+                    <div class="getInTouch_contach_form_subject_input_wrapper">
+                        <label for="getInTouchContactFormSubject" class="getInTouch_contach_form_label">Subject<span>*</span></label>
+                        <input type="text" id="getInTouchContactFormSubject" placeholder="Project Inquiry" class="getInTouch_contach_form_input"
+                        formControlName="subject" [ngClass]="subject?.invalid && (subject?.dirty || subject?.touched) ? 'getInTouch_contach_form_input_error' : ''">
+                    </div>
+
+                    <div class="getInTouch_contach_form_message_input_wrapper">
+                        <label for="getInTouchContactFormMessage" class="getInTouch_contach_form_label">Message<span>*</span></label>
+                        <textarea type="text" id="getInTouchContactFormMessage" placeholder="Tell About Your Project" class="getInTouch_contach_form_textarea"
+                        formControlName="message" [ngClass]="message?.invalid && (message?.dirty || message?.touched) ? 'getInTouch_contach_form_input_error' : ''"></textarea>
+                    </div>
+
+                    <div class="getInTouch_contach_form_button_wrapper" (click)="submitContactForm()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"></path><path d="m21.854 2.147-10.94 10.939"></path></svg>
+                        <div class="getInTouch_contach_form_button_text">Send Message</div>
+                    </div>
+                </form>
+
+                <div *ngIf="isContactFormSubmitted" id="getInTouch_contact_form_saved_text" class="getInTouch_contact_form_saved">✓ Details saved successfully. Our team will connect you soon</div>
+            </div>
+        </div>
+
+    </div>
+
+
+</div>

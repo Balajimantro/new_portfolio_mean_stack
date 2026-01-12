@@ -1,0 +1,29 @@
+<div class="container skills_container">
+    <div class="row g-0">
+        <div class="section_header_wrapper">
+            <span class="section_title">Technical</span>
+            <span class="section_title_highlight">Skills</span>
+        </div>
+
+        <div class="section_description">{{titleDescription}}</div>
+
+        <div class="skills_card_parent">
+            @for(s of skills; track $index) {
+                <div class="skills_card_wrapper">
+                    <div class="skills_card_title_wrapper">
+                        <div class="skills_card_icon_parent">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-code-xml text-white"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg>
+                        </div>
+                        <div class="skills_card_title_text">{{s.technology}}</div>
+                    </div>
+        
+                    <div class="skills_card_title_languages_parent">
+                    @for(l of s.languages; track $index) {
+                            <div class="skills_card_title_languages_text">{{l}}</div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

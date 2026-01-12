@@ -1,0 +1,47 @@
+<div class="container project_container">
+    <div class="section_header_wrapper">
+        <span class="section_title">Featured</span>
+        <span class="section_title_highlight">Projects</span>
+    </div>
+
+    <div class="section_description">{{projectDescription}}</div>
+
+
+    <div class="project_card_container">
+
+        @for(p of projects; track $index) {
+            <div class="project_card_parent" (mouseenter)="hoverProjectIndex = $index" (mouseleave)="hoverProjectIndex = -1" [ngClass]=" {'hovered': hoverProjectIndex === $index} ">
+                <div class="project_card_image_wrapper">
+                    <img src="{{p.image}}" alt="{{p.title}}" class="project_card_image">
+                </div>
+    
+                <div class="project_card_body_wrapper">
+                    <div class="project_card_title">{{p.title}}</div>
+                    <div class="project_card_description">{{p.description}}</div>
+        
+                    <div *ngIf="p.technology" class="project_card_technology_wrapper">
+                        @for(t of p.technology; track $index) {
+                            <div class="project_card_technology_box">{{t}}</div>
+                        }
+                    </div>
+        
+                    <div class="project_card_buttons_wrapper">
+                        <div *ngIf="p.githubLink" class="project_card_btn_git" (click)="openLink(p.githubLink)">
+                            <span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-github"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2-7-2"></path></svg>
+                            </span>
+                            Code
+                        </div>
+                        <div *ngIf="p.publishLink" class="project_card_btn_demo" (click)="openLink(p.publishLink)">
+                            <span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-external-link"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg>
+                            </span>
+                            Demo
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        }
+    </div>
+</div>

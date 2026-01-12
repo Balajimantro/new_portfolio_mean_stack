@@ -1,0 +1,33 @@
+.footer_container {
+    margin-top: 20px;
+    width: 100%;
+    text-align: center;
+    padding: 24px;
+    background-color: var(--color-slate-900);
+}
+
+.footer_text {
+    font-family: var(--font-sans);
+    color: var(--color-slate-300);
+
+}
+
+@media (min-width: 375px) {
+    .footer_text {
+        font-size: 12px;
+    }
+}
+
+@media (min-width: 768px) {
+    .footer_text {
+        font-size: 14px;
+        line-height: 16px;
+    }
+}
+
+@media (min-width: 992px) {
+    .footer_text {
+        font-size: 16px;
+        line-height: 18px;
+    }
+}
