@@ -6,21 +6,32 @@ import { GetInTouchComponent } from "./pages/get-in-touch/get-in-touch.component
 import { FooterComponent } from "./pages/footer/footer.component";
 import { ProjectsComponent } from "./pages/projects/projects.component";
 import { MasterService } from './services/master.service';
+import { SpinnerComponent } from "./pages/spinner/spinner.component";
+import { CommonModule } from '@angular/common';
 
 @Component({
     selector: 'app-root',
-    imports: [NavbarComponent, HomeComponent, SkillsComponent, GetInTouchComponent, FooterComponent, ProjectsComponent],
+    imports: [NavbarComponent, HomeComponent, SkillsComponent, GetInTouchComponent, FooterComponent, ProjectsComponent, SpinnerComponent, CommonModule],
     templateUrl: './app.component.html',
     styleUrl: './app.component.css'
 })
 export class AppComponent implements OnInit {
     title = 'balajiPortfolio';
+    showSpinner = true;
 
-    constructor(private masterService: MasterService) { }
+    constructor(private masterService: MasterService) {
+        window.scrollTo(0, 0)
+     }
 
     ngOnInit(): void {
         this.masterService.getAllProtfolioData();
         this.getHeaderHeight();
+
+        this.masterService.allPortfolioData.subscribe(data => {
+            if(data.name) {
+                this.showSpinner = false;
+            }
+        })
     }
 
     activeSection = 'Home';

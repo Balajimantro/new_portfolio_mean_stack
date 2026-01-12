@@ -27,5 +27,16 @@ export class HomeComponent implements OnInit{
       this.linkdinLink = data.linkdinProfileLink;
       this.mailId = data.mailId;
     })
+  };
+
+  downloadCV() {
+    window.open('./assets/balajiSoftwareDeveloper.pdf', '_blank'); 
+  }
+
+  redirectToDetInTouch() {
+    const element = document.documentElement.querySelector('#Contact');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
   }
 }

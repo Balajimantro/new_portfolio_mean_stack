@@ -25,7 +25,7 @@ export class MasterService {
 
 
   // private url = 'http://localhost:3000'; //local
-  private url = 'https://new-portfolio-mean-stack.onrender.com/'; // #production
+  private url = 'https://new-portfolio-mean-stack.onrender.com'; // #production
 
 
   private baseUrl = this.url;
@@ -46,7 +46,7 @@ export class MasterService {
 
   constructor(private http: HttpClient) { }
 
-  getAllProtfolioData() {
+  getAllProtfolioData(): void {
     this.http.get<PortfolioData>(`${this.baseUrl}/api/portfolio/getAllPortfolioData`).subscribe((data: PortfolioData) => {
       const res = Array.isArray(data) ? data[0] : data;
       this.allPortfolioData$.next(res);

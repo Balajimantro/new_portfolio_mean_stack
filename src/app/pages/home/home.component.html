@@ -14,8 +14,8 @@
             <div class="home_leftside_description">{{description}}</div>
     
             <div class="home_leftside_button_wrapper">
-                <div class="home_leftside_button_getintouch">Get In Touch</div>
-                <div class="home_leftside_button_download">
+                <div class="home_leftside_button_getintouch" (click)="redirectToDetInTouch()">Get In Touch</div>
+                <div class="home_leftside_button_download" (click)="downloadCV()">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-download"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></svg>
                     <div class="home_leftside_button_download_text">Download CV</div>
                 </div>
@@ -35,7 +35,7 @@
         </div>
         <div class="col-lg-6 col-md-6 col-sm-12">
             <div class="home_rightside_image_wrapper">
-                <img src="https://images.unsplash.com/photo-1651684195895-38708dc94cfa?crop=entropy&amp;cs=tinysrgb&amp;fit=max&amp;fm=jpg&amp;ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxkZXZlbG9wZXIlMjB3b3Jrc3BhY2UlMjBsYXB0b3B8ZW58MXx8fHwxNzY3OTE4MDYxfDA&amp;ixlib=rb-4.1.0&amp;q=80&amp;w=1080&amp;utm_source=figma&amp;utm_medium=referral" alt="Developer workspace" class="home_rightside_image rounded-xl">
+                <img src="https://images.unsplash.com/photo-1651684195895-38708dc94cfa?crop=entropy&amp;cs=tinysrgb&amp;fit=max&amp;fm=jpg&amp;ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxkZXZlbG9wZXIlMjB3b3Jrc3BhY2UlMjBsYXB0b3B8ZW58MXx8fHwxNzY3OTE4MDYxfDA&amp;ixlib=rb-4.1.0&amp;q=80&amp;w=1080&amp;utm_source=figma&amp;utm_medium=referral" alt="Developer workspace" class="home_rightside_image" loading="lazy">
             </div>
         </div>
     </div>
