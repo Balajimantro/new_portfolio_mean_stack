@@ -4,7 +4,6 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { ContactInfo, ContactForm } from '../pages/get-in-touch/get-in-touch.component';
 import { projects } from '../pages/projects/projects.component';
 import { Skill } from '../pages/skills/skills.component';
-import { NgxSpinnerService } from 'ngx-spinner';
 
 export interface PortfolioData {
   role: string
@@ -40,13 +39,12 @@ export class MasterService {
   });
   allPortfolioData = this.allPortfolioData$.asObservable();
 
-  constructor(private http: HttpClient, private spinner: NgxSpinnerService) { }
+  constructor(private http: HttpClient) { }
 
   getAllProtfolioData() {
     this.http.get<PortfolioData>(`${this.url}/api/portfolio/getAllPortfolioData`).subscribe((data: PortfolioData) => {
       const res = Array.isArray(data) ? data[0] : data;
       this.allPortfolioData$.next(res);
-      this.spinner.hide();
     });
   };
 

@@ -6,21 +6,19 @@ import { GetInTouchComponent } from "./pages/get-in-touch/get-in-touch.component
 import { FooterComponent } from "./pages/footer/footer.component";
 import { ProjectsComponent } from "./pages/projects/projects.component";
 import { MasterService } from './services/master.service';
-import { NgxSpinnerComponent, NgxSpinnerService } from 'ngx-spinner';
 
 @Component({
     selector: 'app-root',
-    imports: [NavbarComponent, HomeComponent, SkillsComponent, GetInTouchComponent, FooterComponent, ProjectsComponent, NgxSpinnerComponent],
+    imports: [NavbarComponent, HomeComponent, SkillsComponent, GetInTouchComponent, FooterComponent, ProjectsComponent],
     templateUrl: './app.component.html',
     styleUrl: './app.component.css'
 })
 export class AppComponent implements OnInit {
     title = 'balajiPortfolio';
 
-    constructor(private masterService: MasterService, private spinner: NgxSpinnerService) { }
+    constructor(private masterService: MasterService) { }
 
     ngOnInit(): void {
-        this.spinner.show();
         this.masterService.getAllProtfolioData();
         this.getHeaderHeight();
     }
