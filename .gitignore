@@ -1,11 +1,17 @@
 # See https://docs.github.com/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
 
+node_modules/
+package-lock.json
+backend/package-lock.json
+backend/node_modules/
+backend/.env
+
+
 # Compiled output
 /dist
 /tmp
 /out-tsc
 /bazel-out
-/backend/.env
 
 # Node
 /node_modules
