@@ -23,7 +23,12 @@ export interface PortfolioData {
 })
 export class MasterService {
 
-  private url = 'http://localhost:3000';
+
+  // private url = 'http://localhost:3000'; //local
+  private url = 'https://new-portfolio-mean-stack.onrender.com/'; // #production
+
+
+  private baseUrl = this.url;
 
   private allPortfolioData$ = new BehaviorSubject<PortfolioData>({
     role: '',
@@ -42,13 +47,13 @@ export class MasterService {
   constructor(private http: HttpClient) { }
 
   getAllProtfolioData() {
-    this.http.get<PortfolioData>(`${this.url}/api/portfolio/getAllPortfolioData`).subscribe((data: PortfolioData) => {
+    this.http.get<PortfolioData>(`${this.baseUrl}/api/portfolio/getAllPortfolioData`).subscribe((data: PortfolioData) => {
       const res = Array.isArray(data) ? data[0] : data;
       this.allPortfolioData$.next(res);
     });
   };
 
   submitContactForm(contactForm: ContactForm): Observable<ContactForm> {
-    return this.http.post<ContactForm>(`${this.url}/api/contact/saveContactForm`, contactForm);
+    return this.http.post<ContactForm>(`${this.baseUrl}/api/contact/saveContactForm`, contactForm);
   }
 }

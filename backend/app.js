@@ -19,6 +19,8 @@ connectDb();
 app.use('/api/portfolio', getAllPortfolioRouter);
 app.use('/api/contact', saveContactUsDataRouter);
 
-app.listen(process.env.PORT || 3000, () => {
-    console.log(`Server running on port ${process.env.PORT || 3000}`);
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
 })
