@@ -3,7 +3,6 @@ import { Component, OnInit } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MasterService } from '../../services/master.service';
-import { NgxSpinnerService } from 'ngx-spinner';
 
 export interface ContactInfo {
   label: string;
@@ -33,7 +32,7 @@ export class GetInTouchComponent implements OnInit {
   hoveredContactInforIndex: number = -1;
   contactFrom!: FormGroup;
 
-  constructor(private fb: FormBuilder, private masterServise : MasterService, private spinner: NgxSpinnerService) { }
+  constructor(private fb: FormBuilder, private masterServise : MasterService) { }
 
   ngOnInit(): void {
     this.initailizeContactForm();
@@ -112,12 +111,10 @@ export class GetInTouchComponent implements OnInit {
   isContactFormSubmitted: boolean = false;
   submitContactForm() {
     if(this.contactFrom.valid) {
-      this.spinner.show();
       this.masterServise.submitContactForm(this.contactFrom.value).subscribe({
         next: () => {
           this.isContactFormSubmitted = true;
           this.contactFrom.reset();
-          this.spinner.hide();
           this.scrollToSaveText()
 
           setTimeout(() => {
@@ -126,8 +123,6 @@ export class GetInTouchComponent implements OnInit {
 
         },
         error: () => {
-
-          this.spinner.hide();
         }
       })
     } else {
