@@ -1,0 +1,96 @@
+<div class="admin_panel_page">
+  <div class="admin_panel_header">
+    <div style="display: flex; align-items: flex-start; gap: 16px;">
+      <img src="assets/back_icon.svg" alt="" loading="lazy" class="admin_back_icon" (click)="goBack()" />
+      <div>
+        <div class="admin_panel_title">Admin Panel</div>
+        <div class="admin_panel_subtitle">Add, edit, and delete your skills and projects</div>
+      </div>
+    </div>
+    <button class="admin_logout" (click)="logout()">Logout</button>
+  </div>
+
+  <div class="admin_message" *ngIf="message">{{ message }}</div>
+
+  <div class="admin_grid">
+    <div class="admin_card">
+      <div class="admin_card_title">Skills</div>
+      <form [formGroup]="skillForm" (ngSubmit)="submitSkill()" class="admin_form">
+        <input class="admin_input" type="text" formControlName="technology" placeholder="Technology" />
+        <input class="admin_input" type="text" formControlName="level" placeholder="Level (e.g. Advanced)" />
+        <input class="admin_input" type="text" formControlName="languages" placeholder="Languages (comma separated)" />
+        <div class="admin_form_actions">
+          <button class="admin_primary" type="submit">
+            {{ editingSkillId ? 'Update Skill' : 'Add Skill' }}
+          </button>
+          <button class="admin_secondary" type="button" (click)="resetSkillForm()" *ngIf="editingSkillId">
+            Cancel
+          </button>
+        </div>
+      </form>
+
+      <div class="admin_list">
+        <div class="admin_list_item" *ngFor="let skill of skills">
+          <div>
+            <div class="admin_item_title">{{ skill.technology }}</div>
+            <div class="admin_item_meta">{{ skill.level }} • {{ skill.languages.length ? skill.languages.join(', ') : 'No languages'}}</div>
+          </div>
+          <div class="admin_item_actions">
+            <button class="admin_link" (click)="editSkill(skill)">Edit</button>
+            <button class="admin_link danger" (click)="deleteSkill(skill)">Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="admin_card">
+      <div class="admin_card_title">Projects</div>
+      <form [formGroup]="projectForm" (ngSubmit)="submitProject()" class="admin_form">
+        <input class="admin_input" type="text" formControlName="title" placeholder="Project title" />
+        <textarea class="admin_textarea" formControlName="description" placeholder="Project description"></textarea>
+        <input class="admin_input" type="text" formControlName="technology" placeholder="Technology (comma separated)" />
+        <input class="admin_input" type="text" formControlName="image" placeholder="Image URL (optional)" />
+        <input class="admin_input" type="text" formControlName="githubLink" placeholder="GitHub link (optional)" />
+        <input class="admin_input" type="text" formControlName="publishLink" placeholder="Live link (optional)" />
+        <div class="admin_form_actions">
+          <button class="admin_primary" type="submit">
+            {{ editingProjectId ? 'Update Project' : 'Add Project' }}
+          </button>
+          <button class="admin_secondary" type="button" (click)="resetProjectForm()" *ngIf="editingProjectId">
+            Cancel
+          </button>
+        </div>
+      </form>
+
+      <div class="admin_list">
+        <div class="admin_list_item" *ngFor="let project of projects">
+          <div>
+            <div class="admin_item_title">{{ project.title }}</div>
+            <div class="admin_item_meta">{{ project.technology.length ? project.technology.join(', ') : 'No technologies'}}</div>
+          </div>
+          <div class="admin_item_actions">
+            <button class="admin_link" (click)="editProject(project)">Edit</button>
+            <button class="admin_link danger" (click)="deleteProject(project)">Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="admin_card admin_card_contacts">
+    <div class="admin_card_title">Contact Submissions</div>
+    <div class="admin_list" *ngIf="contacts.length; else emptyContacts">
+      <div class="admin_list_item admin_contact_item" *ngFor="let contact of contacts">
+        <div class="admin_contact_main">
+          <div class="admin_item_title">{{ contact.name }} • {{ contact.email }}</div>
+          <div class="admin_item_meta">{{ contact.subject }}</div>
+          <div class="admin_contact_message">{{ contact.message }}</div>
+        </div>
+        <div class="admin_contact_time">{{ contact.createdAt | date: 'medium' }}</div>
+      </div>
+    </div>
+    <ng-template #emptyContacts>
+      <div class="admin_empty">No contact submissions yet.</div>
+    </ng-template>
+  </div>
+</div>

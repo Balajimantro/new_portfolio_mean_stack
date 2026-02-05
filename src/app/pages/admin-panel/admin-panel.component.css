@@ -1,0 +1,229 @@
+.admin_panel_page {
+  min-height: 100vh;
+  background: linear-gradient(160deg, var(--color-blue-200) 0%, var(--color-blue-300) 45%, var(--color-purple-300) 100%);
+  padding: 32px;
+}
+
+.admin_panel_header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.admin_back_icon {
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.admin_panel_title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.admin_panel_subtitle {
+  color: #64748b;
+  margin-top: 4px;
+}
+
+.admin_logout {
+  border: none;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: #111827;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.admin_message {
+  margin-top: 16px;
+  background: #ecfeff;
+  border: 1px solid #99f6e4;
+  color: #0f766e;
+  padding: 10px 14px;
+  border-radius: 12px;
+  display: inline-block;
+}
+
+.admin_grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 24px;
+  margin-top: 24px;
+}
+
+.admin_card {
+  background: #fff;
+  border-radius: 18px;
+  padding: 24px;
+  box-shadow: 0 16px 45px rgba(15, 23, 42, 0.08);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.admin_card_contacts {
+  margin-top: 24px;
+}
+
+.admin_card_title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.admin_form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.admin_input,
+.admin_textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  font-size: 14px;
+  outline: none;
+}
+
+.admin_textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+.admin_input:focus,
+.admin_textarea:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.18);
+}
+
+.admin_form_actions {
+  display: flex;
+  gap: 12px;
+}
+
+.admin_primary {
+  border: none;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: linear-gradient(120deg, #2563eb, #7c3aed);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.admin_secondary {
+  border: 1px solid #e2e8f0;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.admin_list {
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.admin_list_item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.admin_contact_item {
+  align-items: flex-start;
+}
+
+.admin_contact_main {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.admin_contact_message {
+  font-size: 13px;
+  color: #334155;
+}
+
+.admin_contact_time {
+  font-size: 12px;
+  color: #94a3b8;
+  white-space: nowrap;
+}
+
+.admin_empty {
+  font-size: 14px;
+  color: #64748b;
+  padding: 8px 0;
+}
+
+.admin_item_title {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.admin_item_meta {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.admin_item_actions {
+  display: flex;
+  gap: 8px;
+}
+
+.admin_link {
+  border: none;
+  background: transparent;
+  color: #2563eb;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.admin_link.danger {
+  color: #dc2626;
+}
+
+@media (max-width: 768px) {
+  .admin_panel_header {
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 575px) {
+  .admin_panel_page {
+    padding: 16px;
+  }
+
+  .admin_contact_item {
+    flex-direction: column;
+  }
+
+  .admin_card {
+    padding: 16px !important;
+  }
+
+  .admin_list_item {
+    padding: 0;
+  }
+
+  .admin_logout {
+    font-size: 12px;
+    border-radius: 8px !important;
+    padding: 8px 12px !important;
+    font-weight: 400 !important;
+  }
+}

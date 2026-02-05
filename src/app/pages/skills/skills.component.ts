@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MasterService } from '../../services/master.service';
 
 export interface Skill {
+  id?: string;
   technology: string;
   level: string;
   languages: string[];

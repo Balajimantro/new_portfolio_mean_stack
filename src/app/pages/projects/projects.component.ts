@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { MasterService } from '../../services/master.service';
 
 export interface projects {
+  id?: string;
   image?: string
   title: string
   description: string
@@ -35,5 +36,4 @@ export class ProjectsComponent implements OnInit {
     window.open(link)
   }
 }
-
 
