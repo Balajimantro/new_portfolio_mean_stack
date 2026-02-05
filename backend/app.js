@@ -19,6 +19,9 @@ app.use(cookieParser());
 
 const PORT = process.env.PORT || 3000;
 
+app.get('/health', (req, res) => {
+    res.json({ status: 'ok', time: new Date().toISOString() });
+});
 async function startServer() {
     try {
         // connecting db
@@ -27,9 +30,6 @@ async function startServer() {
         app.use('/api/portfolio', getAllPortfolioRouter);
         app.use('/api/contact', saveContactUsDataRouter);
         app.use('/api/admin', adminRouter);
-        app.get('/health', (req, res) => {
-            res.json({ status: 'ok', time: new Date().toISOString() });
-        });
 
         app.listen(PORT, () => {
             console.log(`Server running on port ${PORT}`);
