@@ -5,7 +5,7 @@ function authMiddleware(req, res, next) {
   const token =  cookieToken;
 
   if (!token) {
-    return res.status(401).json({ message: 'Unauthorized' });
+    return res.status(401).json({ message: 'Unauthorized', error: 'No token provided', token: token });
   }
 
   try {
@@ -13,7 +13,7 @@ function authMiddleware(req, res, next) {
     req.user = decoded;
     return next();
   } catch (error) {
-    return res.status(200).json({ message: 'Unauthorized' });
+    return res.status(401).json({ message: 'Unauthorized', error: error.message, token: token  });
   }
 }
 

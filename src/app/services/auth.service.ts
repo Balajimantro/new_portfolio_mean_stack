@@ -12,15 +12,19 @@ export class AuthService {
   constructor(private http: HttpClient) {}
 
   login(username: string, password: string): Observable<{ success: boolean }> {
-    return this.http.post<{ success: boolean }>(`${this.baseUrl}/api/admin/login`, { username, password });
+    return this.http.post<{ success: boolean }>(
+      `${this.baseUrl}/api/admin/login`,
+      { username, password },
+      { withCredentials: true }
+    );
   }
 
   logout(): Observable<void> {
-    return this.http.post<void>(`${this.baseUrl}/api/admin/logout`, {});
+    return this.http.post<void>(`${this.baseUrl}/api/admin/logout`, {}, { withCredentials: true });
   }
 
   isAuthenticated(): Observable<boolean> {
-    return this.http.get<{ user: unknown }>(`${this.baseUrl}/api/admin/me`).pipe(
+    return this.http.get<{ user: unknown }>(`${this.baseUrl}/api/admin/me`, { withCredentials: true }).pipe(
       map((res) => !!res.user)
     );
   }
