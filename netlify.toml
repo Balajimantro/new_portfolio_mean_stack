@@ -1,9 +1,2 @@
 [build]
-  publish = "dist/balaji-portfolio/browser"
-
-[[redirects]]
-  from = "/api/*"
-  to = "https://new-portfolio-mean-stack.onrender.com/api/:splat"
-  status = 200
-  force = true
-
+  publish = "dist/balaji-portfolio"
