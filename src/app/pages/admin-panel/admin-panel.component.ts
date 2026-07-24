@@ -22,6 +22,9 @@ export class AdminPanelComponent implements OnInit {
 
   skillForm: FormGroup;
   projectForm: FormGroup;
+  profileForm: FormGroup;
+  cvFile: File | null = null;
+  isUploadingCv = false;
 
   editingSkillId: string | null = null;
   editingProjectId: string | null = null;
@@ -49,6 +52,13 @@ export class AdminPanelComponent implements OnInit {
       githubLink: [''],
       publishLink: ['']
     });
+
+    this.profileForm = this.fb.group({
+      gitHubProfileLink: ['', Validators.required],
+      linkdinProfileLink: ['', Validators.required],
+      mailId: ['', Validators.required],
+      cvLink: ['']
+    });
   }
 
   ngOnInit(): void {
@@ -56,6 +66,15 @@ export class AdminPanelComponent implements OnInit {
     this.masterService.allPortfolioData.subscribe((data) => {
       this.skills = data.skills || [];
       this.projects = data.projects || [];
+      this.profileForm.patchValue(
+        {
+          gitHubProfileLink: data.gitHubProfileLink || '',
+          linkdinProfileLink: data.linkdinProfileLink || '',
+          mailId: data.mailId || '',
+          cvLink: data.resume?.cvLink || ''
+        },
+        { emitEvent: false }
+      );
     });
 
     this.loadContacts();
@@ -90,6 +109,10 @@ export class AdminPanelComponent implements OnInit {
         this.resetSkillForm();
         this.masterService.getAllProtfolioData();
         this.message = 'Skill updated successfully';
+        window.scrollTo(0, 0);
+        setTimeout(() => {
+          this.message = '';
+        }, 3000);
       });
       return;
     }
@@ -98,6 +121,10 @@ export class AdminPanelComponent implements OnInit {
       this.resetSkillForm();
       this.masterService.getAllProtfolioData();
       this.message = 'Skill added successfully';
+      window.scrollTo(0, 0);
+        setTimeout(() => {
+          this.message = '';
+        }, 3000);
     });
   }
 
@@ -115,6 +142,10 @@ export class AdminPanelComponent implements OnInit {
     this.adminService.deleteSkill(skill.id).subscribe(() => {
       this.masterService.getAllProtfolioData();
       this.message = 'Skill deleted successfully';
+      window.scrollTo(0, 0);
+        setTimeout(() => {
+          this.message = '';
+        }, 3000);
     });
   }
 
@@ -143,6 +174,10 @@ export class AdminPanelComponent implements OnInit {
         this.resetProjectForm();
         this.masterService.getAllProtfolioData();
         this.message = 'Project updated successfully';
+        window.scrollTo(0, 0);
+        setTimeout(() => {
+          this.message = '';
+        }, 3000);
       });
       return;
     }
@@ -151,6 +186,10 @@ export class AdminPanelComponent implements OnInit {
       this.resetProjectForm();
       this.masterService.getAllProtfolioData();
       this.message = 'Project added successfully';
+      window.scrollTo(0, 0);
+        setTimeout(() => {
+          this.message = '';
+        }, 3000);
     });
   }
 
@@ -171,6 +210,10 @@ export class AdminPanelComponent implements OnInit {
     this.adminService.deleteProject(project.id).subscribe(() => {
       this.masterService.getAllProtfolioData();
       this.message = 'Project deleted successfully';
+      window.scrollTo(0, 0);
+        setTimeout(() => {
+          this.message = '';
+        }, 3000);
     });
   }
 
@@ -181,5 +224,59 @@ export class AdminPanelComponent implements OnInit {
 
   goBack(): void {
     this.router.navigate(['']);
+  }
+
+  submitProfile(): void {
+    if (this.profileForm.invalid) {
+      this.profileForm.markAllAsTouched();
+      return;
+    }
+
+    this.adminService.updateProfile(this.profileForm.value).subscribe(() => {
+      this.masterService.getAllProtfolioData();
+      this.message = 'Profile links updated successfully';
+      window.scrollTo(0, 0);
+        setTimeout(() => {
+          this.message = '';
+        }, 3000);
+    });
+  }
+
+  onCvFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.cvFile = input.files && input.files.length ? input.files[0] : null;
+  }
+
+  uploadCv(): void {
+    if (!this.cvFile) {
+      this.message = 'Please choose a PDF file first';
+      window.scrollTo(0, 0);
+        setTimeout(() => {
+          this.message = '';
+        }, 3000);
+      return;
+    }
+
+    this.isUploadingCv = true;
+    this.adminService.uploadCv(this.cvFile).subscribe({
+      next: () => {
+        this.isUploadingCv = false;
+        this.cvFile = null;
+        this.masterService.getAllProtfolioData();
+        this.message = 'CV uploaded successfully';
+        window.scrollTo(0, 0);
+        setTimeout(() => {
+          this.message = '';
+        }, 3000);
+      },
+      error: () => {
+        this.isUploadingCv = false;
+        this.message = 'CV upload failed';
+        window.scrollTo(0, 0);
+        setTimeout(() => {
+          this.message = '';
+        }, 3000);
+      }
+    });
   }
 }

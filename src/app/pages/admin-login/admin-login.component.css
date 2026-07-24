@@ -58,6 +58,33 @@
   outline: none;
 }
 
+.admin_password_wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.admin_input_password {
+  padding-right: 70px;
+}
+
+.admin_password_toggle {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  color: #2563eb;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 6px 8px;
+}
+
+.admin_password_toggle:focus {
+  outline: none;
+}
+
 .admin_input:focus {
   border-color: #6366f1;
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);

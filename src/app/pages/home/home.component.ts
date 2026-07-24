@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MasterService } from '../../services/master.service';
+import { API_BASE_URL } from '../../services/api.config';
 
 @Component({
   selector: 'app-home',
@@ -15,6 +16,7 @@ export class HomeComponent implements OnInit{
   gitHubLink: string = '';
   linkdinLink: string = '';
   mailId: string = '';
+  cvLink: string = '';
 
   constructor(private masterService: MasterService) { }
 
@@ -26,11 +28,15 @@ export class HomeComponent implements OnInit{
       this.gitHubLink = data.gitHubProfileLink;
       this.linkdinLink = data.linkdinProfileLink;
       this.mailId = data.mailId;
+      this.cvLink = data.resume?.cvLink || '';
     })
   };
 
   downloadCV() {
-    window.open('./assets/balajiSoftwareDeveloper.pdf', '_blank'); 
+    const cvUrl = this.cvLink
+      ? (this.cvLink.startsWith('http') ? this.cvLink : `${API_BASE_URL}${this.cvLink}`)
+      : './assets/balajiSoftwareDeveloper.pdf';
+    window.open(cvUrl, '_blank'); 
   }
 
   redirectToDetInTouch() {

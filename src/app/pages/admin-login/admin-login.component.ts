@@ -14,6 +14,7 @@ export class AdminLoginComponent {
   loginForm: FormGroup;
   errorMessage = '';
   isLoading = false;
+  showPassword = false;
 
   constructor(private fb: FormBuilder, private authService: AuthService, private router: Router) {
     this.loginForm = this.fb.group({
@@ -46,5 +47,9 @@ export class AdminLoginComponent {
 
   goBack(): void {
     this.router.navigate(['']);
+  }
+
+  togglePassword(): void {
+    this.showPassword = !this.showPassword;
   }
 }

@@ -1,6 +1,7 @@
 const { ObjectId } = require('mongodb');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const cloudinary = require('cloudinary').v2;
 const { getDb } = require('../mongoDb');
 
 async function getPortfolioDoc() {
@@ -13,6 +14,14 @@ async function getPortfolioDoc() {
 function signToken(payload) {
   const secret = process.env.JWT_SECRET || 'dev_secret';
   return jwt.sign(payload, secret, { expiresIn: '12h' });
+}
+
+function initCloudinary() {
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+  });
 }
 
 exports.login = async (req, res) => {
@@ -203,4 +212,70 @@ exports.logout = async (req, res) => {
     sameSite: isProduction ? 'none' : 'lax'
   });
   return res.json({ success: true });
+};
+
+exports.updateProfile = async (req, res) => {
+  try {
+    const { collection, doc } = await getPortfolioDoc();
+    if (!doc) {
+      return res.status(404).json({ message: 'Portfolio document not found' });
+    }
+
+    const payload = {
+      gitHubProfileLink: req.body.gitHubProfileLink || '',
+      linkdinProfileLink: req.body.linkdinProfileLink || '',
+      mailId: req.body.mailId || '',
+      cvLink: req.body.cvLink || ''
+    };
+
+    await collection.updateOne({ _id: doc._id }, { $set: payload });
+    return res.json(payload);
+  } catch (error) {
+    return res.status(500).json({ message: 'Error updating profile', error });
+  }
+};
+
+exports.uploadCv = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: 'CV file is required' });
+    }
+
+    console.log('Received file:', req.file);
+
+    initCloudinary();
+    const { collection, doc } = await getPortfolioDoc();
+    if (!doc) {
+      return res.status(404).json({ message: 'Portfolio document not found' });
+    }
+
+    const uploadResult = await new Promise((resolve, reject) => {
+      const stream = cloudinary.uploader.upload_stream(
+        {
+          folder: 'portfolio-cv/latest-cv',
+          resource_type: 'raw', // IMPORTANT for PDF
+          overwrite: true,
+          format: 'pdf'
+        },
+        (error, result) => {
+          if (error) return reject(error);
+          resolve(result);
+        }
+      );
+      stream.end(req.file.buffer);
+    });
+
+    const payload = {
+      resume: {
+        cvLink: uploadResult.secure_url,
+        fileName: req.file.originalname,
+        publicId: uploadResult.public_id
+      }
+    };
+
+    await collection.updateOne({ _id: doc._id }, { $set: payload });
+    return res.json(payload);
+  } catch (error) {
+    return res.status(500).json({ message: 'Error uploading CV', error });
+  }
 };

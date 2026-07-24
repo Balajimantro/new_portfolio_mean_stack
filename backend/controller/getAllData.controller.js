@@ -1,3 +1,5 @@
+const https = require("https");
+const cloudinary = require("cloudinary").v2;
 const { ObjectId } = require("mongodb");
 const { getDb } = require("../mongoDb");
 
@@ -46,3 +48,41 @@ exports.getAllData = async(req, res) => {
         res.status(500).json(error);
     }
 }
+
+exports.streamCv = async (req, res) => {
+    try {
+        const db = getDb();
+        const collection = db.collection("PersonalData");
+        const doc = await collection.findOne({});
+
+        if (!doc || !doc.cvPublicId) {
+            return res.status(404).json({ message: "CV not found" });
+        }
+
+        cloudinary.config({
+            cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+            api_key: process.env.CLOUDINARY_API_KEY,
+            api_secret: process.env.CLOUDINARY_API_SECRET
+        });
+
+        const cvUrl = cloudinary.url(doc.cvPublicId, {
+            secure: true,
+            resource_type: "raw",
+            format: "pdf"
+        });
+
+        res.setHeader("Content-Type", "application/pdf");
+        res.setHeader("Content-Disposition", "inline; filename=\"cv.pdf\"");
+
+        https.get(cvUrl, (cvRes) => {
+            if (cvRes.statusCode && cvRes.statusCode >= 400) {
+                return res.status(500).json({ message: "Failed to fetch CV" });
+            }
+            cvRes.pipe(res);
+        }).on("error", () => {
+            res.status(500).json({ message: "Failed to fetch CV" });
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Error streaming CV", error });
+    }
+};

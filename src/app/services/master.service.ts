@@ -17,6 +17,11 @@ export interface PortfolioData {
   gitHubProfileLink: string;
   linkdinProfileLink: string;
   mailId: string;
+  resume?: {
+    cvLink: string;
+    cvPublicId: string;
+    fileName: string;
+  }
 }
 
 @Injectable({
@@ -35,7 +40,12 @@ export class MasterService {
     whyWorkWithMe: [],
     gitHubProfileLink: '',
     linkdinProfileLink: '',
-    mailId: ''
+    mailId: '',
+    resume: {
+      cvLink: '',
+      cvPublicId: '',
+      fileName: ''
+    }
   });
   allPortfolioData = this.allPortfolioData$.asObservable();
 

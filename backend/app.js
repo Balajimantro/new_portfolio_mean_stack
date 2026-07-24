@@ -1,12 +1,13 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
+const morgan = require('morgan');
 const { connectDb } = require('./mongoDb');
 const getAllPortfolioRouter = require('./router/getAllData.router');
 const saveContactUsDataRouter = require('./router/saveContactUsData.router');
 const adminRouter = require('./router/admin.router');
-require('dotenv').config();
 
 const app = express();
 
@@ -14,6 +15,9 @@ app.use(cors({
     origin: process.env.CLIENT_URL,
     credentials: true
 }));
+app.use(morgan('dev'));
+app.use(express.json());
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cookieParser());
 

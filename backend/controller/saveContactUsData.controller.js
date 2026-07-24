@@ -12,7 +12,7 @@ async function sendContactEmails({ name, email, subject, message }) {
         }
     });
 
-    const adminEmail = process.env.ADMIN_EMAIL || process.env.SMTP_USER;
+    const adminEmail = process.env.SMTP_USER;
 
     const adminMail = {
         from: `Portfolio Contact <${process.env.SMTP_USER}>`,
@@ -42,8 +42,8 @@ exports.saveContactUsData = async (req, res) => {
             createdAt: new Date().toISOString()
         };
 
-        const result = await collection.insertOne(data);
         await sendContactEmails(data);
+        const result = await collection.insertOne(data);
 
         res.json({
             success: true,

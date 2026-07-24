@@ -109,14 +109,16 @@ export class GetInTouchComponent implements OnInit {
   };
 
   isContactFormSubmitted: boolean = false;
+  processingContactForm: boolean = false;
   submitContactForm() {
     if(this.contactFrom.valid) {
+      this.processingContactForm = true;
       this.masterServise.submitContactForm(this.contactFrom.value).subscribe({
         next: () => {
           this.isContactFormSubmitted = true;
           this.contactFrom.reset();
-          this.scrollToSaveText()
-
+          this.scrollToSaveText();
+          this.processingContactForm = false;
           setTimeout(() => {
             this.isContactFormSubmitted = false;
           }, 3000);

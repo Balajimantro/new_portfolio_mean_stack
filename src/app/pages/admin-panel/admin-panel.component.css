@@ -1,6 +1,5 @@
 .admin_panel_page {
   min-height: 100vh;
-  background: linear-gradient(160deg, var(--color-blue-200) 0%, var(--color-blue-300) 45%, var(--color-purple-300) 100%);
   padding: 32px;
 }
 
@@ -61,8 +60,10 @@
   background: #fff;
   border-radius: 18px;
   padding: 24px;
-  box-shadow: 0 16px 45px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 16px 45px rgba(15, 23, 42, 0.09);
   border: 1px solid rgba(148, 163, 184, 0.18);
+  background-color: rgb(248 245 250 / 80%);
+  backdrop-filter: blur(10px);
 }
 
 .admin_card_contacts {
@@ -105,6 +106,26 @@
 .admin_form_actions {
   display: flex;
   gap: 12px;
+}
+
+.admin_cv_upload {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px dashed rgba(148, 163, 184, 0.4);
+}
+
+.admin_cv_label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 8px;
+}
+
+.admin_cv_controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
 .admin_primary {
@@ -178,6 +199,14 @@
 .admin_item_meta {
   font-size: 12px;
   color: #64748b;
+}
+
+.admin_item_meta_cv {
+  font-size: 12px;
+  color: #64748b;
+  white-space: break-spaces;
+  overflow: hidden;
+  width: 100%;
 }
 
 .admin_item_actions {

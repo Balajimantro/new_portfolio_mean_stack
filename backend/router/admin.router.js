@@ -1,10 +1,15 @@
 const router = require('express').Router();
 const adminController = require('../controller/admin.controller');
 const { authMiddleware } = require('../middleware/auth.middleware');
+const multer = require('multer');
+
+const upload = multer({ storage: multer.memoryStorage() });
 
 router.post('/login', adminController.login);
 router.get('/me', authMiddleware, adminController.me);
 router.post('/logout', authMiddleware, adminController.logout);
+router.put('/profile', authMiddleware, adminController.updateProfile);
+router.post('/cv', authMiddleware, upload.single('cv'), adminController.uploadCv);
 
 router.post('/skills', authMiddleware, adminController.addSkill);
 router.put('/skills/:id', authMiddleware, adminController.updateSkill);

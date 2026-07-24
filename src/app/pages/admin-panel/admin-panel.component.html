@@ -44,6 +44,32 @@
     </div>
 
     <div class="admin_card">
+      <div class="admin_card_title">Profile Links</div>
+      <form [formGroup]="profileForm" (ngSubmit)="submitProfile()" class="admin_form">
+        <input class="admin_input" type="text" formControlName="gitHubProfileLink" placeholder="GitHub profile link" />
+        <input class="admin_input" type="text" formControlName="linkdinProfileLink" placeholder="LinkedIn profile link" />
+        <input class="admin_input" type="email" formControlName="mailId" placeholder="Email address" />
+        <input class="admin_input" type="text" formControlName="cvLink" placeholder="CV link (optional)" />
+        <div class="admin_form_actions">
+          <button class="admin_primary" type="submit">Save Profile</button>
+        </div>
+      </form>
+
+      <div class="admin_cv_upload">
+        <div class="admin_cv_label">Upload CV (PDF)</div>
+        <div class="admin_cv_controls">
+          <input class="admin_input" type="file" accept="application/pdf" (change)="onCvFileSelected($event)" />
+          <button class="admin_secondary" type="button" (click)="uploadCv()" [disabled]="isUploadingCv">
+            {{ isUploadingCv ? 'Uploading...' : 'Upload CV' }}
+          </button>
+        </div>
+        <div class="admin_item_meta_cv" *ngIf="profileForm.value.cvLink">
+          Current CV: {{ profileForm.value.cvLink }}
+        </div>
+      </div>
+    </div>
+
+    <div class="admin_card">
       <div class="admin_card_title">Projects</div>
       <form [formGroup]="projectForm" (ngSubmit)="submitProject()" class="admin_form">
         <input class="admin_input" type="text" formControlName="title" placeholder="Project title" />

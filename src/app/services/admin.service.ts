@@ -41,4 +41,24 @@ export class AdminService {
   getContacts(): Observable<ContactSubmission[]> {
     return this.http.get<ContactSubmission[]>(`${this.baseUrl}/api/admin/contacts`);
   }
+
+  updateProfile(profile: {gitHubProfileLink: string; linkdinProfileLink: string; mailId: string; cvLink?: string;}): Observable<{
+    gitHubProfileLink: string;
+    linkdinProfileLink: string;
+    mailId: string;
+    cvLink?: string;
+  }> {
+    return this.http.put<{
+      gitHubProfileLink: string;
+      linkdinProfileLink: string;
+      mailId: string;
+      cvLink?: string;
+    }>(`${this.baseUrl}/api/admin/profile`, profile);
+  }
+
+  uploadCv(file: File): Observable<{ cvLink: string; cvPublicId: string }> {
+    const formData = new FormData();
+    formData.append('cv', file);
+    return this.http.post<{ cvLink: string; cvPublicId: string }>(`${this.baseUrl}/api/admin/cv`, formData);
+  }
 }
