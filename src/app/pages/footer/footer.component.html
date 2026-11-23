@@ -1,3 +1,26 @@
-<div class="footer_container">
-    <div class="footer_text">Copyright © {{currentYear()}} | All Rights Reserved | Built with MEAN STACK & Bootstrap by Balaji Seenivasan</div>
-</div>
+@if (visible()) {
+    <footer class="footer">
+        <div class="footer-glow" aria-hidden="true"></div>
+        <div class="container footer-inner">
+            <div class="footer-brand">
+                <span class="footer-mark" aria-hidden="true">B</span>
+                <div>
+                    <p class="footer-name">Balaji Seenivasan</p>
+                    <p class="footer-role">Full Stack Developer · Angular · Node.js</p>
+                </div>
+            </div>
+
+            <p class="footer-text">
+                © {{ currentYear() }} All rights reserved. Built with the MEAN stack &amp; a lot of curiosity.
+            </p>
+
+            <button type="button" class="footer-top" (click)="scrollTop()" title="Back to top">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M12 19V5"></path>
+                    <path d="m5 12 7-7 7 7"></path>
+                </svg>
+                Top
+            </button>
+        </div>
+    </footer>
+}

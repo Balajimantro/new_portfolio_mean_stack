@@ -1,0 +1,26 @@
+<div class="hero-stage" #stage>
+    <div class="hero-fallback" aria-hidden="true">
+        <span class="ring ring-1"></span>
+        <span class="ring ring-2"></span>
+        <span class="ring ring-3"></span>
+        <span class="core-glow"></span>
+    </div>
+
+    <canvas #canvas class="hero-canvas" [class.ready]="ready()" aria-hidden="true"></canvas>
+
+    <div class="hero-hud" aria-hidden="true">
+        <span class="hud-chip hud-top">
+            <span class="hud-dot"></span>
+            WebGL
+        </span>
+        <span class="hud-chip hud-bottom">three.js · realtime</span>
+    </div>
+
+    <div class="hero-orbit" aria-hidden="true">
+        <span class="orbit-ring"></span>
+        <span class="orbit-clip">TS</span>
+        <span class="orbit-dot orbit-dot-a"></span>
+        <span class="orbit-dot orbit-dot-b"></span>
+        <span class="orbit-dot orbit-dot-c"></span>
+    </div>
+</div>

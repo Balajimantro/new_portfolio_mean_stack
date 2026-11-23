@@ -1,0 +1,247 @@
+.hero-stage {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    max-height: 560px;
+    display: grid;
+    place-items: center;
+    isolation: isolate;
+}
+
+.hero-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    opacity: 0;
+    transition: opacity 0.9s ease;
+    cursor: grab;
+}
+
+.hero-canvas.ready {
+    opacity: 1;
+}
+
+.hero-canvas:active {
+    cursor: grabbing;
+}
+
+/* ---------- CSS fallback / loading state ---------- */
+.hero-fallback {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    pointer-events: none;
+}
+
+.core-glow {
+    position: absolute;
+    width: 46%;
+    height: 46%;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #c4b5fd, #7c5cff 40%, #22d3ee 78%, transparent 80%);
+    filter: blur(26px);
+    opacity: 0.55;
+    animation: core-breathe 6s ease-in-out infinite;
+}
+
+.ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(124, 92, 255, 0.35);
+    animation: ring-float 9s ease-in-out infinite;
+}
+
+.ring-1 {
+    width: 52%;
+    height: 52%;
+    border-color: rgba(124, 92, 255, 0.45);
+}
+
+.ring-2 {
+    width: 72%;
+    height: 72%;
+    border-color: rgba(34, 211, 238, 0.22);
+    animation-delay: -3s;
+}
+
+.ring-3 {
+    width: 92%;
+    height: 92%;
+    border-color: rgba(244, 114, 182, 0.16);
+    animation-delay: -6s;
+}
+
+@keyframes core-breathe {
+    0%, 100% { transform: scale(1); opacity: 0.5; }
+    50% { transform: scale(1.08); opacity: 0.68; }
+}
+
+@keyframes ring-float {
+    0%, 100% { transform: rotate(0deg) scale(1); }
+    50% { transform: rotate(8deg) scale(1.03); }
+}
+
+/* ---------- floating HUD ---------- */
+.hero-hud {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    font-family: var(--font-mono);
+    z-index: 2;
+}
+
+.hud-chip {
+    position: absolute;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 12px;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--border);
+    background: rgba(10, 10, 20, 0.55);
+    backdrop-filter: blur(12px);
+    color: var(--text-dim);
+    font-size: 10.5px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    animation: hud-float 7s ease-in-out infinite;
+}
+
+[data-theme='light'] .hud-chip {
+    background: rgba(255, 255, 255, 0.7);
+}
+
+.hud-top {
+    top: 8%;
+    left: 6%;
+}
+
+.hud-bottom {
+    right: 5%;
+    bottom: 12%;
+    animation-delay: -3.5s;
+}
+
+.hud-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--success);
+    box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.18);
+}
+
+@keyframes hud-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-9px); }
+}
+
+/* ---------- orbit badge ---------- */
+.hero-orbit {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.orbit-ring {
+    position: absolute;
+    inset: 13%;
+    border-radius: 50%;
+    border: 1px dashed rgba(255, 255, 255, 0.1);
+    animation: spin 34s linear infinite;
+}
+
+[data-theme='light'] .orbit-ring {
+    border-color: rgba(15, 23, 42, 0.12);
+}
+
+.orbit-clip {
+    position: absolute;
+    top: 50%;
+    left: 13%;
+    transform: translate(-50%, -50%);
+    display: grid;
+    place-items: center;
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+    border: 1px solid var(--border-strong);
+    background: rgba(10, 10, 20, 0.72);
+    backdrop-filter: blur(14px);
+    color: #fff;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 500;
+    box-shadow: 0 10px 30px -12px rgba(124, 92, 255, 0.8);
+}
+
+[data-theme='light'] .orbit-clip {
+    background: rgba(255, 255, 255, 0.9);
+    color: #0c1020;
+}
+
+.orbit-dot {
+    position: absolute;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+}
+
+.orbit-dot-a {
+    top: 13%;
+    left: 50%;
+    background: var(--accent-2);
+    box-shadow: 0 0 16px var(--accent-2);
+}
+
+.orbit-dot-b {
+    top: 70%;
+    right: 15%;
+    background: var(--accent-3);
+    box-shadow: 0 0 16px var(--accent-3);
+}
+
+.orbit-dot-c {
+    bottom: 12%;
+    left: 28%;
+    background: var(--accent);
+    box-shadow: 0 0 16px var(--accent);
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+@media (max-width: 991px) {
+    .hero-stage {
+        max-height: 460px;
+    }
+
+    .hud-bottom {
+        display: none;
+    }
+}
+
+@media (max-width: 575px) {
+    .hero-stage {
+        aspect-ratio: 4 / 3.4;
+    }
+
+    .orbit-clip {
+        width: 38px;
+        height: 38px;
+        font-size: 11px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .core-glow,
+    .ring,
+    .hud-chip,
+    .orbit-ring {
+        animation: none !important;
+    }
+}

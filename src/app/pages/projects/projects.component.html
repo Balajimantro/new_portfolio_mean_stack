@@ -1,47 +1,107 @@
-<div class="container project_container">
-    <div class="section_header_wrapper">
-        <span class="section_title">Featured</span>
-        <span class="section_title_highlight">Projects</span>
-    </div>
+<section class="section projects">
+    <div class="container">
+        <h2 class="section_header_wrapper reveal" [appReveal]="0">
+            <span class="section_title">Featured</span>
+            <span class="section_title_highlight">Projects</span>
+        </h2>
 
-    <div class="section_description">{{projectDescription}}</div>
+        <p class="section_description reveal" [appReveal]="1">{{ projectDescription }}</p>
 
-
-    <div class="project_card_container">
-
-        @for(p of projects; track $index) {
-            <div class="project_card_parent" (mouseenter)="hoverProjectIndex = $index" (mouseleave)="hoverProjectIndex = -1" [ngClass]=" {'hovered': hoverProjectIndex === $index} ">
-                <div class="project_card_image_wrapper">
-                    <img src="{{p.image}}" alt="{{p.title}}" class="project_card_image">
-                </div>
-    
-                <div class="project_card_body_wrapper">
-                    <div class="project_card_title">{{p.title}}</div>
-                    <div class="project_card_description">{{p.description}}</div>
-        
-                    <div *ngIf="p.technology" class="project_card_technology_wrapper">
-                        @for(t of p.technology; track $index) {
-                            <div class="project_card_technology_box">{{t}}</div>
-                        }
-                    </div>
-        
-                    <div class="project_card_buttons_wrapper">
-                        <div *ngIf="p.githubLink" class="project_card_btn_git" (click)="openLink(p.githubLink)">
-                            <span>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-github"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2-7-2"></path></svg>
-                            </span>
-                            Code
-                        </div>
-                        <div *ngIf="p.publishLink" class="project_card_btn_demo" (click)="openLink(p.publishLink)">
-                            <span>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-external-link"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg>
-                            </span>
-                            Demo
-                        </div>
-                    </div>
-                    
-                </div>
+        @if (filters().length > 1) {
+            <div class="project-filters reveal" [appReveal]="2" role="tablist" aria-label="Filter projects by technology">
+                <button
+                    type="button"
+                    class="filter-btn"
+                    role="tab"
+                    [class.active]="activeFilter() === null"
+                    [attr.aria-selected]="activeFilter() === null"
+                    (click)="setFilter(null)">
+                    All
+                    <span class="filter-count">{{ projects().length }}</span>
+                </button>
+                @for (filter of filters(); track filter) {
+                    <button
+                        type="button"
+                        class="filter-btn"
+                        role="tab"
+                        [class.active]="activeFilter() === filter"
+                        [attr.aria-selected]="activeFilter() === filter"
+                        (click)="setFilter(filter)">
+                        {{ filter }}
+                    </button>
+                }
             </div>
         }
+
+        <div class="projects-grid">
+            @for (p of filtered(); track p.id ?? $index; let i = $index) {
+                <div class="reveal" [appReveal]="i % 6">
+                    <article class="project-card card" appTilt [tiltMax]="5">
+                        <div class="tilt-inner project-card-inner">
+                            <div class="project-media">
+                                @if (p.image) {
+                                    <img
+                                        [src]="p.image"
+                                        [alt]="p.title"
+                                        class="project-image"
+                                        loading="lazy"
+                                        width="640"
+                                        height="400"
+                                        (error)="onImageError($event)">
+                                } @else {
+                                    <div class="project-media-fallback" aria-hidden="true">
+                                        <span>{{ initials(p.title) }}</span>
+                                    </div>
+                                }
+                                <span class="project-shade" aria-hidden="true"></span>
+                                <span class="project-index" aria-hidden="true">{{ (i + 1).toString().padStart(2, '0') }}</span>
+                            </div>
+
+                            <div class="project-body">
+                                <h3 class="project-title">{{ p.title }}</h3>
+                                <p class="project-desc">{{ p.description }}</p>
+
+                                @if (p.technology.length) {
+                                    <div class="project-tech">
+                                        @for (t of p.technology; track t) {
+                                            <span class="chip">{{ t }}</span>
+                                        }
+                                    </div>
+                                }
+
+                                <div class="project-actions">
+                                    @if (safeLink(p.githubLink); as github) {
+                                        <a class="btn btn--ghost btn--sm" [href]="github" target="_blank" rel="noopener noreferrer">
+                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path>
+                                                <path d="M9 18c-4.51 2-5-2-7-2"></path>
+                                            </svg>
+                                            Code
+                                        </a>
+                                    }
+                                    @if (safeLink(p.publishLink); as demo) {
+                                        <a class="btn btn--primary btn--sm" [href]="demo" target="_blank" rel="noopener noreferrer">
+                                            Live demo
+                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                <path d="M7 17 17 7"></path>
+                                                <path d="M7 7h10v10"></path>
+                                            </svg>
+                                        </a>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            } @empty {
+                <p class="projects-empty">
+                    @if (projects().length === 0) {
+                        Projects are loading…
+                    } @else {
+                        No projects match this filter.
+                    }
+                </p>
+            }
+        </div>
     </div>
-</div>
+</section>

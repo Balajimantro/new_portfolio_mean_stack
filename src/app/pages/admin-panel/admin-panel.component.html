@@ -1,7 +1,12 @@
 <div class="admin_panel_page">
   <div class="admin_panel_header">
     <div style="display: flex; align-items: flex-start; gap: 16px;">
-      <img src="assets/back_icon.svg" alt="" loading="lazy" class="admin_back_icon" (click)="goBack()" />
+      <button type="button" class="admin_back_icon" (click)="goBack()" aria-label="Back to portfolio">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="m12 19-7-7 7-7"></path>
+          <path d="M19 12H5"></path>
+        </svg>
+      </button>
       <div>
         <div class="admin_panel_title">Admin Panel</div>
         <div class="admin_panel_subtitle">Add, edit, and delete your skills and projects</div>
@@ -111,6 +116,40 @@
           <div class="admin_item_title">{{ contact.name }} • {{ contact.email }}</div>
           <div class="admin_item_meta">{{ contact.subject }}</div>
           <div class="admin_contact_message">{{ contact.message }}</div>
+
+          <div class="admin_contact_actions">
+            <button
+              type="button"
+              class="admin_ai_btn"
+              (click)="analyzeLead(contact)"
+              [disabled]="insightFor(contact._id)?.loading">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"></path>
+              </svg>
+              {{ insightFor(contact._id)?.loading ? 'Thinking…' : 'Summarize & draft reply' }}
+            </button>
+          </div>
+
+          @if (insightFor(contact._id); as insight) {
+            @if (insight.error) {
+              <p class="admin_insight_error">{{ insight.error }}</p>
+            } @else {
+              @if (insight.data; as data) {
+                <div class="admin_insight">
+                  <div class="admin_insight_head">
+                    <span class="admin_cat" [ngClass]="'cat-' + data.category">{{ data.category }}</span>
+                    <span class="admin_ai_badge">{{ data.ai ? 'AI generated' : 'offline fallback' }}</span>
+                  </div>
+                  <p class="admin_insight_summary">{{ data.summary }}</p>
+                  <pre class="admin_insight_reply">{{ data.reply }}</pre>
+                  <div class="admin_insight_actions">
+                    <button type="button" class="admin_link" (click)="copyReply(data.reply)">Copy reply</button>
+                    <button type="button" class="admin_link" (click)="openReply(contact, data.reply)">Open in email</button>
+                  </div>
+                </div>
+              }
+            }
+          }
         </div>
         <div class="admin_contact_time">{{ contact.createdAt | date: 'medium' }}</div>
       </div>

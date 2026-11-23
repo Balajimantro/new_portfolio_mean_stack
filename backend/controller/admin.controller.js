@@ -1,281 +1,266 @@
-const { ObjectId } = require('mongodb');
+const path = require('path');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const cloudinary = require('cloudinary').v2;
+const { ObjectId } = require('mongodb');
+
+const config = require('../config/env');
 const { getDb } = require('../mongoDb');
 
-async function getPortfolioDoc() {
-  const db = getDb();
-  const collection = db.collection('PersonalData');
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
+
+const BCRYPT_ROUNDS = 12;
+
+function signToken(payload) {
+  return jwt.sign(payload, config.jwtSecret, { expiresIn: '12h' });
+}
+
+function httpError(status, message) {
+  const error = new Error(message);
+  error.status = status;
+  return error;
+}
+
+async function requirePortfolioDoc() {
+  const collection = getDb().collection('PersonalData');
   const doc = await collection.findOne({});
+  if (!doc) throw httpError(404, 'Portfolio document not found');
   return { collection, doc };
 }
 
-function signToken(payload) {
-  const secret = process.env.JWT_SECRET || 'dev_secret';
-  return jwt.sign(payload, secret, { expiresIn: '12h' });
-}
-
-function initCloudinary() {
-  cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET
-  });
-}
-
 exports.login = async (req, res) => {
-  const { username, password } = req.body || {};
+  const { username, password } = req.body;
 
-  if (!username || !password) {
-    return res.status(400).json({ message: 'Username and password are required' });
-  }
-
-  const db = getDb();
-  const usersCollection = db.collection('users');
-  const user = await usersCollection.findOne({ userName: username });
-
+  const user = await getDb().collection('users').findOne({ userName: username });
   if (!user) {
-    return res.status(401).json({ message: 'Invalid credentials' });
+    // Keep timing roughly constant for unknown users.
+    await bcrypt.compare(password, '$2a$12$C6UzMDM.H6dfI/f/IKcEeO7ZK0dQ8l9Z0F7G6yG6tH0Qr5S7h2J5u');
+    throw httpError(401, 'Invalid credentials');
   }
 
-  const passwordHash = user.passwordHash || '';
-  let isPasswordMatch = false;
+  let isMatch = false;
 
-  if (passwordHash) {
-    isPasswordMatch = await bcrypt.compare(password, passwordHash);
+  if (user.passwordHash) {
+    isMatch = await bcrypt.compare(password, user.passwordHash);
   } else if (user.password) {
-    isPasswordMatch = password === user.password;
+    // Legacy plaintext record: verify once, then upgrade to bcrypt.
+    isMatch = password === user.password;
+    if (isMatch) {
+      const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
+      await getDb()
+        .collection('users')
+        .updateOne({ _id: user._id }, { $set: { passwordHash }, $unset: { password: '' } });
+    }
   }
 
-  if (!isPasswordMatch) {
-    return res.status(401).json({ message: 'Invalid credentials' });
+  if (!isMatch) {
+    throw httpError(401, 'Invalid credentials');
   }
 
   const token = signToken({ userId: user._id.toString(), username: user.userName, role: 'admin' });
-  const isProduction = process.env.NODE_ENV === 'production';
+
   res.cookie('admin_token', token, {
     httpOnly: true,
-    secure: isProduction,
-    sameSite: isProduction ? 'none' : 'lax',
+    secure: config.isProd,
+    sameSite: config.isProd ? 'none' : 'lax',
+    path: '/',
     maxAge: 12 * 60 * 60 * 1000
+  });
+
+  return res.json({ success: true });
+};
+
+exports.me = async (req, res) => res.json({ user: req.user || null });
+
+exports.logout = async (req, res) => {
+  res.clearCookie('admin_token', {
+    httpOnly: true,
+    secure: config.isProd,
+    sameSite: config.isProd ? 'none' : 'lax',
+    path: '/'
   });
   return res.json({ success: true });
 };
 
 exports.addSkill = async (req, res) => {
-  try {
-    const { collection, doc } = await getPortfolioDoc();
-    if (!doc) {
-      return res.status(404).json({ message: 'Portfolio document not found' });
-    }
+  const { collection, doc } = await requirePortfolioDoc();
 
-    const newSkill = {
-      id: new ObjectId().toString(),
-      technology: req.body.technology,
-      level: req.body.level,
-      languages: req.body.languages || []
-    };
+  const newSkill = {
+    id: new ObjectId().toString(),
+    technology: req.body.technology,
+    level: req.body.level,
+    languages: req.body.languages || []
+  };
 
-    await collection.updateOne({ _id: doc._id }, { $push: { skills: newSkill } });
-    return res.json(newSkill);
-  } catch (error) {
-    return res.status(500).json({ message: 'Error adding skill', error });
-  }
+  await collection.updateOne({ _id: doc._id }, { $push: { skills: newSkill } });
+  return res.status(201).json(newSkill);
 };
 
 exports.updateSkill = async (req, res) => {
-  try {
-    const { collection, doc } = await getPortfolioDoc();
-    if (!doc) {
-      return res.status(404).json({ message: 'Portfolio document not found' });
-    }
+  const { collection, doc } = await requirePortfolioDoc();
+  const { id } = req.params;
 
-    const { id } = req.params;
-    const updated = {
-      id,
-      technology: req.body.technology,
-      level: req.body.level,
-      languages: req.body.languages || []
-    };
-
-    const skills = (doc.skills || []).map((skill) => (skill.id === id ? updated : skill));
-    await collection.updateOne({ _id: doc._id }, { $set: { skills } });
-    return res.json(updated);
-  } catch (error) {
-    return res.status(500).json({ message: 'Error updating skill', error });
+  if (!(doc.skills || []).some((skill) => skill.id === id)) {
+    throw httpError(404, 'Skill not found');
   }
+
+  await collection.updateOne(
+    { _id: doc._id },
+    {
+      $set: {
+        'skills.$[el]': {
+          id,
+          technology: req.body.technology,
+          level: req.body.level,
+          languages: req.body.languages || []
+        }
+      }
+    },
+    { arrayFilters: [{ 'el.id': id }] }
+  );
+
+  return res.json({ id, ...req.body });
 };
 
 exports.deleteSkill = async (req, res) => {
-  try {
-    const { collection, doc } = await getPortfolioDoc();
-    if (!doc) {
-      return res.status(404).json({ message: 'Portfolio document not found' });
-    }
+  const { collection, doc } = await requirePortfolioDoc();
 
-    const { id } = req.params;
-    const skills = (doc.skills || []).filter((skill) => skill.id !== id);
-    await collection.updateOne({ _id: doc._id }, { $set: { skills } });
-    return res.json({ success: true });
-  } catch (error) {
-    return res.status(500).json({ message: 'Error deleting skill', error });
+  if (!(doc.skills || []).some((skill) => skill.id === req.params.id)) {
+    throw httpError(404, 'Skill not found');
   }
-};
 
-exports.addProject = async (req, res) => {
-  try {
-    const { collection, doc } = await getPortfolioDoc();
-    if (!doc) {
-      return res.status(404).json({ message: 'Portfolio document not found' });
-    }
+  await collection.updateOne({ _id: doc._id }, { $pull: { skills: { id: req.params.id } } });
 
-    const newProject = {
-      id: new ObjectId().toString(),
-      title: req.body.title,
-      description: req.body.description,
-      technology: req.body.technology || [],
-      image: req.body.image || '',
-      githubLink: req.body.githubLink || '',
-      publishLink: req.body.publishLink || ''
-    };
-
-    await collection.updateOne({ _id: doc._id }, { $push: { projects: newProject } });
-    return res.json(newProject);
-  } catch (error) {
-    return res.status(500).json({ message: 'Error adding project', error });
-  }
-};
-
-exports.updateProject = async (req, res) => {
-  try {
-    const { collection, doc } = await getPortfolioDoc();
-    if (!doc) {
-      return res.status(404).json({ message: 'Portfolio document not found' });
-    }
-
-    const { id } = req.params;
-    const updated = {
-      id,
-      title: req.body.title,
-      description: req.body.description,
-      technology: req.body.technology || [],
-      image: req.body.image || '',
-      githubLink: req.body.githubLink || '',
-      publishLink: req.body.publishLink || ''
-    };
-
-    const projects = (doc.projects || []).map((project) => (project.id === id ? updated : project));
-    await collection.updateOne({ _id: doc._id }, { $set: { projects } });
-    return res.json(updated);
-  } catch (error) {
-    return res.status(500).json({ message: 'Error updating project', error });
-  }
-};
-
-exports.deleteProject = async (req, res) => {
-  try {
-    const { collection, doc } = await getPortfolioDoc();
-    if (!doc) {
-      return res.status(404).json({ message: 'Portfolio document not found' });
-    }
-
-    const { id } = req.params;
-    const projects = (doc.projects || []).filter((project) => project.id !== id);
-    await collection.updateOne({ _id: doc._id }, { $set: { projects } });
-    return res.json({ success: true });
-  } catch (error) {
-    return res.status(500).json({ message: 'Error deleting project', error });
-  }
-};
-
-exports.getContactSubmissions = async (req, res) => {
-  try {
-    const db = getDb();
-    const collection = db.collection('contactUsData');
-    const data = await collection.find({}).sort({ createdAt: -1 }).toArray();
-    return res.json(data);
-  } catch (error) {
-    return res.status(500).json({ message: 'Error fetching contact submissions', error });
-  }
-};
-
-exports.me = async (req, res) => {
-  return res.json({ user: req.user || null });
-};
-
-exports.logout = async (req, res) => {
-  const isProduction = process.env.NODE_ENV === 'production';
-  res.clearCookie('admin_token', {
-    httpOnly: true,
-    secure: isProduction,
-    sameSite: isProduction ? 'none' : 'lax'
-  });
   return res.json({ success: true });
 };
 
-exports.updateProfile = async (req, res) => {
-  try {
-    const { collection, doc } = await getPortfolioDoc();
-    if (!doc) {
-      return res.status(404).json({ message: 'Portfolio document not found' });
-    }
+exports.addProject = async (req, res) => {
+  const { collection, doc } = await requirePortfolioDoc();
 
-    const payload = {
-      gitHubProfileLink: req.body.gitHubProfileLink || '',
-      linkdinProfileLink: req.body.linkdinProfileLink || '',
-      mailId: req.body.mailId || '',
-      cvLink: req.body.cvLink || ''
-    };
+  const newProject = {
+    id: new ObjectId().toString(),
+    title: req.body.title,
+    description: req.body.description,
+    technology: req.body.technology || [],
+    image: req.body.image || '',
+    githubLink: req.body.githubLink || '',
+    publishLink: req.body.publishLink || ''
+  };
 
-    await collection.updateOne({ _id: doc._id }, { $set: payload });
-    return res.json(payload);
-  } catch (error) {
-    return res.status(500).json({ message: 'Error updating profile', error });
+  await collection.updateOne({ _id: doc._id }, { $push: { projects: newProject } });
+  return res.status(201).json(newProject);
+};
+
+exports.updateProject = async (req, res) => {
+  const { collection, doc } = await requirePortfolioDoc();
+  const { id } = req.params;
+
+  if (!(doc.projects || []).some((project) => project.id === id)) {
+    throw httpError(404, 'Project not found');
   }
+
+  await collection.updateOne(
+    { _id: doc._id },
+    {
+      $set: {
+        'projects.$[el]': {
+          id,
+          title: req.body.title,
+          description: req.body.description,
+          technology: req.body.technology || [],
+          image: req.body.image || '',
+          githubLink: req.body.githubLink || '',
+          publishLink: req.body.publishLink || ''
+        }
+      }
+    },
+    { arrayFilters: [{ 'el.id': id }] }
+  );
+
+  return res.json({ id, ...req.body });
+};
+
+exports.deleteProject = async (req, res) => {
+  const { collection, doc } = await requirePortfolioDoc();
+
+  if (!(doc.projects || []).some((project) => project.id === req.params.id)) {
+    throw httpError(404, 'Project not found');
+  }
+
+  await collection.updateOne({ _id: doc._id }, { $pull: { projects: { id: req.params.id } } });
+
+  return res.json({ success: true });
+};
+
+exports.getContactSubmissions = async (req, res) => {
+  const limit = Math.min(Math.max(Number(req.query.limit) || 50, 1), 200);
+
+  const data = await getDb()
+    .collection('contactUsData')
+    .find({})
+    .sort({ createdAt: -1 })
+    .limit(limit)
+    .toArray();
+
+  return res.json(data);
+};
+
+exports.updateProfile = async (req, res) => {
+  const { collection, doc } = await requirePortfolioDoc();
+  const allowed = ['gitHubProfileLink', 'linkdinProfileLink', 'mailId', 'cvLink'];
+
+  const set = {};
+  for (const key of allowed) {
+    if (Object.prototype.hasOwnProperty.call(req.body, key)) {
+      set[key] = req.body[key];
+    }
+  }
+
+  if (Object.keys(set).length === 0) {
+    throw httpError(400, 'No profile fields provided');
+  }
+
+  await collection.updateOne({ _id: doc._id }, { $set: set });
+  return res.json(set);
 };
 
 exports.uploadCv = async (req, res) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({ message: 'CV file is required' });
-    }
+  if (!req.file) throw httpError(400, 'CV file is required');
 
-    console.log('Received file:', req.file);
+  const { collection, doc } = await requirePortfolioDoc();
 
-    initCloudinary();
-    const { collection, doc } = await getPortfolioDoc();
-    if (!doc) {
-      return res.status(404).json({ message: 'Portfolio document not found' });
-    }
+  const uploadResult = await new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      {
+        folder: 'portfolio-cv/latest-cv',
+        resource_type: 'raw',
+        overwrite: true,
+        format: 'pdf',
+        public_id: `balaji-cv-${Date.now()}`
+      },
+      (error, result) => (error ? reject(error) : resolve(result))
+    );
+    stream.end(req.file.buffer);
+  });
 
-    const uploadResult = await new Promise((resolve, reject) => {
-      const stream = cloudinary.uploader.upload_stream(
-        {
-          folder: 'portfolio-cv/latest-cv',
-          resource_type: 'raw', // IMPORTANT for PDF
-          overwrite: true,
-          format: 'pdf'
-        },
-        (error, result) => {
-          if (error) return reject(error);
-          resolve(result);
-        }
-      );
-      stream.end(req.file.buffer);
-    });
-
-    const payload = {
-      resume: {
-        cvLink: uploadResult.secure_url,
-        fileName: req.file.originalname,
-        publicId: uploadResult.public_id
-      }
-    };
-
-    await collection.updateOne({ _id: doc._id }, { $set: payload });
-    return res.json(payload);
-  } catch (error) {
-    return res.status(500).json({ message: 'Error uploading CV', error });
+  const previousPublicId = doc.resume?.publicId || doc.resume?.cvPublicId;
+  if (previousPublicId) {
+    cloudinary.uploader
+      .destroy(previousPublicId, { resource_type: 'raw' })
+      .catch((error) => console.warn('[cloudinary] old CV cleanup failed:', error.message));
   }
+
+  const resume = {
+    cvLink: uploadResult.secure_url,
+    publicId: uploadResult.public_id,
+    fileName: path.basename(req.file.originalname || 'cv.pdf')
+  };
+
+  await collection.updateOne({ _id: doc._id }, { $set: { resume } });
+
+  return res.json({ success: true, resume });
 };
