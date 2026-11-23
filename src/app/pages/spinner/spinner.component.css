@@ -1,48 +1,104 @@
-.loading {
-    animation: frames 1.5s infinite ease;
-    background: transparent;
-    border-width: 8px;
-    border-style: solid;
-    border-color: transparent;
-    border-radius: 100%;
-    width: 100px;
-    height: 100px;
-    opacity: .6;
-    padding: 0;
-    position: relative;
-    z-index: 999;
-    /* top: 45%;
-    left: 50%; */
-}
-
-#pause{
-    display: block;
-    background: rgba(0, 0, 0, 0.66) no-repeat 0 0;
-    width: 100%;
-    height: 100%;
+.boot {
     position: fixed;
-    /* bottom: 0;
-    left: 0; */
-    z-index: 1000;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    inset: 0;
+    z-index: 2000;
+    display: grid;
+    place-items: center;
+    background: var(--bg);
+    overflow: hidden;
 }
 
-@keyframes frames {
-    0% {
-        -webkit-transform: rotate(0deg);
-        transform: rotate(0deg);
-        border-top-color: var(--color-purple-600);
-    }
+.boot::before {
+    content: '';
+    position: absolute;
+    width: 520px;
+    height: 520px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(124, 92, 255, 0.28), transparent 66%);
+    filter: blur(40px);
+    animation: boot-glow 3s ease-in-out infinite;
+}
 
-    50% {
-        border-top-color: var(--color-blue-600);
-    }
+.boot-inner {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+}
 
-    100% {
-        -webkit-transform: rotate(359deg);
-        transform: rotate(359deg);
-        border-top-color: var(--color-purple-600);
+.boot-mark {
+    display: grid;
+    place-items: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 17px;
+    background-image: var(--gradient);
+    color: #fff;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 24px;
+    box-shadow: 0 18px 50px -18px rgba(124, 92, 255, 0.95);
+    animation: boot-pulse 1.8s ease-in-out infinite;
+}
+
+.boot-name {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.02em;
+}
+
+.boot-dot {
+    color: var(--accent-2);
+}
+
+.boot-bar {
+    position: relative;
+    width: 180px;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--surface-3);
+    overflow: hidden;
+}
+
+.boot-bar-fill {
+    position: absolute;
+    inset: 0;
+    width: 40%;
+    border-radius: 2px;
+    background-image: var(--gradient);
+    animation: boot-slide 1.2s ease-in-out infinite;
+}
+
+.boot-text {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+}
+
+@keyframes boot-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.06); }
+}
+
+@keyframes boot-slide {
+    0% { transform: translateX(-120%); }
+    100% { transform: translateX(320%); }
+}
+
+@keyframes boot-glow {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 0.9; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .boot-mark,
+    .boot-bar-fill,
+    .boot::before {
+        animation: none;
     }
 }

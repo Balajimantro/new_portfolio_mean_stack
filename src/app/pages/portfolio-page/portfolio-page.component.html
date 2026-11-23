@@ -1,4 +1,7 @@
 <app-spinner *ngIf="showSpinner"></app-spinner>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
 <app-navbar
   class="navbar_tag_parent"
   id="navbar"
@@ -6,7 +9,19 @@
   (navActiveMenu)="navActiveMenu($event)"
   [ngStyle]="{ 'position': showSpinner ? 'inherit' : 'fixed' }"
 ></app-navbar>
-<app-home id="Home"></app-home>
-<app-skills id="Skills"></app-skills>
-<app-projects id="Projects"></app-projects>
-<app-get-in-touch id="Contact"></app-get-in-touch>
+
+@if (loadFailed) {
+  <div class="load-banner" role="alert">
+    <span>Couldn't load the latest portfolio data.</span>
+    <button type="button" (click)="retry()">Retry</button>
+  </div>
+}
+
+<main id="main">
+  <app-home id="Home"></app-home>
+  <app-skills id="Skills"></app-skills>
+  <app-projects id="Projects"></app-projects>
+  <app-get-in-touch id="Contact"></app-get-in-touch>
+</main>
+
+<app-ai-chat></app-ai-chat>

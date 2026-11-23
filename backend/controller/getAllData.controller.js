@@ -1,88 +1,59 @@
-const https = require("https");
-const cloudinary = require("cloudinary").v2;
-const { ObjectId } = require("mongodb");
-const { getDb } = require("../mongoDb");
+const https = require('https');
+const cloudinary = require('cloudinary').v2;
+const { getDb } = require('../mongoDb');
+const config = require('../config/env');
 
-exports.getAllData = async(req, res) => {
-    try {
-        const db = getDb();
-        const collection = db.collection("PersonalData");
-        const data = await collection.find({}).toArray();
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
+exports.getAllData = async (req, res) => {
+  const doc = await getDb().collection('PersonalData').findOne({});
 
-        if(!data || data.length === 0) {
-            res.status(404).json("Data not found in db");
-        }
+  if (!doc) {
+    res.status(404).json({ message: 'Portfolio data not found' });
+    return;
+  }
 
-        const doc = data[0];
-        if (doc) {
-            let updated = false;
-
-            if (Array.isArray(doc.skills)) {
-                doc.skills = doc.skills.map((skill) => {
-                    if (!skill.id) {
-                        updated = true;
-                        return { ...skill, id: new ObjectId().toString() };
-                    }
-                    return skill;
-                });
-            }
-
-            if (Array.isArray(doc.projects)) {
-                doc.projects = doc.projects.map((project) => {
-                    if (!project.id) {
-                        updated = true;
-                        return { ...project, id: new ObjectId().toString() };
-                    }
-                    return project;
-                });
-            }
-
-            if (updated) {
-                await collection.updateOne({ _id: doc._id }, { $set: { skills: doc.skills, projects: doc.projects } });
-            }
-        }
-
-        res.json(data);
-    } catch(error) {
-        res.status(500).json(error);
-    }
-}
+  // Kept as an array for backwards compatibility with older clients.
+  res.json([doc]);
+};
 
 exports.streamCv = async (req, res) => {
-    try {
-        const db = getDb();
-        const collection = db.collection("PersonalData");
-        const doc = await collection.findOne({});
+  const doc = await getDb().collection('PersonalData').findOne({});
+  const publicId = doc?.resume?.publicId || doc?.cvPublicId;
 
-        if (!doc || !doc.cvPublicId) {
-            return res.status(404).json({ message: "CV not found" });
-        }
+  if (!publicId) {
+    res.status(404).json({ message: 'CV not found' });
+    return;
+  }
 
-        cloudinary.config({
-            cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-            api_key: process.env.CLOUDINARY_API_KEY,
-            api_secret: process.env.CLOUDINARY_API_SECRET
-        });
+  const cvUrl = cloudinary.url(publicId, {
+    secure: true,
+    resource_type: 'raw',
+    format: 'pdf'
+  });
 
-        const cvUrl = cloudinary.url(doc.cvPublicId, {
-            secure: true,
-            resource_type: "raw",
-            format: "pdf"
-        });
+  res.setHeader('Content-Type', 'application/pdf');
+  res.setHeader('Content-Disposition', 'inline; filename="balaji-cv.pdf"');
 
-        res.setHeader("Content-Type", "application/pdf");
-        res.setHeader("Content-Disposition", "inline; filename=\"cv.pdf\"");
-
-        https.get(cvUrl, (cvRes) => {
-            if (cvRes.statusCode && cvRes.statusCode >= 400) {
-                return res.status(500).json({ message: "Failed to fetch CV" });
-            }
-            cvRes.pipe(res);
-        }).on("error", () => {
-            res.status(500).json({ message: "Failed to fetch CV" });
-        });
-    } catch (error) {
-        res.status(500).json({ message: "Error streaming CV", error });
-    }
+  https
+    .get(cvUrl, (cvResponse) => {
+      if (cvResponse.statusCode && cvResponse.statusCode >= 400) {
+        cvResponse.resume();
+        res.status(502).json({ message: 'Failed to fetch CV' });
+        return;
+      }
+      cvResponse.pipe(res);
+    })
+    .on('error', (error) => {
+      console.error('[cv] stream failed', error.message, config.isProd ? '' : cvUrl);
+      if (!res.headersSent) {
+        res.status(502).json({ message: 'Failed to fetch CV' });
+      } else {
+        res.end();
+      }
+    });
 };

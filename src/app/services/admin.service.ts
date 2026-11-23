@@ -6,6 +6,20 @@ import { Skill } from '../pages/skills/skills.component';
 import { projects } from '../pages/projects/projects.component';
 import { ContactSubmission } from '../models/contact-submission';
 
+export interface LeadInsight {
+  summary: string;
+  category: 'recruiter' | 'client' | 'spam' | 'other';
+  reply: string;
+  ai: boolean;
+}
+
+export interface ProfilePayload {
+  gitHubProfileLink?: string;
+  linkdinProfileLink?: string;
+  mailId?: string;
+  cvLink?: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -38,27 +52,29 @@ export class AdminService {
     return this.http.delete<void>(`${this.baseUrl}/api/admin/projects/${id}`);
   }
 
-  getContacts(): Observable<ContactSubmission[]> {
-    return this.http.get<ContactSubmission[]>(`${this.baseUrl}/api/admin/contacts`);
+  getContacts(limit = 50): Observable<ContactSubmission[]> {
+    return this.http.get<ContactSubmission[]>(`${this.baseUrl}/api/admin/contacts?limit=${limit}`);
   }
 
-  updateProfile(profile: {gitHubProfileLink: string; linkdinProfileLink: string; mailId: string; cvLink?: string;}): Observable<{
-    gitHubProfileLink: string;
-    linkdinProfileLink: string;
-    mailId: string;
-    cvLink?: string;
-  }> {
-    return this.http.put<{
-      gitHubProfileLink: string;
-      linkdinProfileLink: string;
-      mailId: string;
-      cvLink?: string;
-    }>(`${this.baseUrl}/api/admin/profile`, profile);
+  updateProfile(profile: ProfilePayload): Observable<ProfilePayload> {
+    return this.http.put<ProfilePayload>(`${this.baseUrl}/api/admin/profile`, profile);
   }
 
-  uploadCv(file: File): Observable<{ cvLink: string; cvPublicId: string }> {
+  uploadCv(file: File): Observable<{ success: boolean; resume: { cvLink: string; publicId: string; fileName: string } }> {
     const formData = new FormData();
     formData.append('cv', file);
-    return this.http.post<{ cvLink: string; cvPublicId: string }>(`${this.baseUrl}/api/admin/cv`, formData);
+    return this.http.post<{ success: boolean; resume: { cvLink: string; publicId: string; fileName: string } }>(
+      `${this.baseUrl}/api/admin/cv`,
+      formData
+    );
+  }
+
+  analyzeLead(payload: {
+    name: string;
+    email: string;
+    subject: string;
+    message: string;
+  }): Observable<LeadInsight> {
+    return this.http.post<LeadInsight>(`${this.baseUrl}/api/ai/lead`, payload);
   }
 }

@@ -1,13 +1,20 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MasterService } from '../../services/master.service';
-import { AdminService } from '../../services/admin.service';
+import { AdminService, LeadInsight } from '../../services/admin.service';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 import { Skill } from '../skills/skills.component';
 import { projects } from '../projects/projects.component';
 import { ContactSubmission } from '../../models/contact-submission';
+
+interface InsightState {
+  loading: boolean;
+  data?: LeadInsight;
+  error?: string;
+}
 
 @Component({
   selector: 'app-admin-panel',
@@ -30,6 +37,10 @@ export class AdminPanelComponent implements OnInit {
   editingProjectId: string | null = null;
 
   message = '';
+
+  readonly insights = signal<Record<string, InsightState>>({});
+
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor(
     private masterService: MasterService,
@@ -63,35 +74,85 @@ export class AdminPanelComponent implements OnInit {
 
   ngOnInit(): void {
     this.masterService.getAllProtfolioData();
-    this.masterService.allPortfolioData.subscribe((data) => {
-      this.skills = data.skills || [];
-      this.projects = data.projects || [];
-      this.profileForm.patchValue(
-        {
-          gitHubProfileLink: data.gitHubProfileLink || '',
-          linkdinProfileLink: data.linkdinProfileLink || '',
-          mailId: data.mailId || '',
-          cvLink: data.resume?.cvLink || ''
-        },
-        { emitEvent: false }
-      );
-    });
+    this.masterService.allPortfolioData
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((data) => {
+        this.skills = data.skills || [];
+        this.projects = data.projects || [];
+        this.profileForm.patchValue(
+          {
+            gitHubProfileLink: data.gitHubProfileLink || '',
+            linkdinProfileLink: data.linkdinProfileLink || '',
+            mailId: data.mailId || '',
+            cvLink: data.resume?.cvLink || ''
+          },
+          { emitEvent: false }
+        );
+      });
 
     this.loadContacts();
   }
 
   loadContacts(): void {
-    this.adminService.getContacts().subscribe((data) => {
-      this.contacts = data || [];
-    });
+    this.adminService
+      .getContacts()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((data) => {
+        this.contacts = data || [];
+      });
   }
 
   logout(): void {
     this.authService.logout().subscribe(() => {
       this.router.navigate(['']);
-    }) 
+    });
   }
 
+  // ---------- AI lead assistant ----------
+  insightFor(id: string): InsightState | undefined {
+    return this.insights()[id];
+  }
+
+  analyzeLead(contact: ContactSubmission): void {
+    const id = contact._id;
+    this.insights.update((map) => ({ ...map, [id]: { loading: true } }));
+
+    this.adminService
+      .analyzeLead({
+        name: contact.name,
+        email: contact.email,
+        subject: contact.subject,
+        message: contact.message
+      })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (data) => this.insights.update((map) => ({ ...map, [id]: { loading: false, data } })),
+        error: () =>
+          this.insights.update((map) => ({
+            ...map,
+            [id]: { loading: false, error: 'Could not generate a summary right now.' }
+          }))
+      });
+  }
+
+  copyReply(text: string): void {
+    if (!navigator.clipboard) {
+      this.flash('Clipboard is not available in this browser');
+      return;
+    }
+    navigator.clipboard
+      .writeText(text)
+      .then(() => this.flash('Reply copied to clipboard'))
+      .catch(() => this.flash('Could not copy reply'));
+  }
+
+  openReply(contact: ContactSubmission, reply: string): void {
+    const subject = encodeURIComponent(`Re: ${contact.subject}`);
+    const body = encodeURIComponent(reply);
+    window.location.href = `mailto:${contact.email}?subject=${subject}&body=${body}`;
+  }
+
+  // ---------- skills ----------
   submitSkill(): void {
     if (this.skillForm.invalid) {
       this.skillForm.markAllAsTouched();
@@ -101,18 +162,17 @@ export class AdminPanelComponent implements OnInit {
     const skillPayload: Skill = {
       technology: this.skillForm.value.technology,
       level: this.skillForm.value.level,
-      languages: this.skillForm.value.languages.split(',').map((item: string) => item.trim()).filter(Boolean)
+      languages: this.skillForm.value.languages
+        .split(',')
+        .map((item: string) => item.trim())
+        .filter(Boolean)
     };
 
     if (this.editingSkillId) {
       this.adminService.updateSkill(this.editingSkillId, skillPayload).subscribe(() => {
         this.resetSkillForm();
         this.masterService.getAllProtfolioData();
-        this.message = 'Skill updated successfully';
-        window.scrollTo(0, 0);
-        setTimeout(() => {
-          this.message = '';
-        }, 3000);
+        this.flash('Skill updated successfully');
       });
       return;
     }
@@ -120,11 +180,7 @@ export class AdminPanelComponent implements OnInit {
     this.adminService.addSkill(skillPayload).subscribe(() => {
       this.resetSkillForm();
       this.masterService.getAllProtfolioData();
-      this.message = 'Skill added successfully';
-      window.scrollTo(0, 0);
-        setTimeout(() => {
-          this.message = '';
-        }, 3000);
+      this.flash('Skill added successfully');
     });
   }
 
@@ -141,11 +197,7 @@ export class AdminPanelComponent implements OnInit {
     if (!skill.id) return;
     this.adminService.deleteSkill(skill.id).subscribe(() => {
       this.masterService.getAllProtfolioData();
-      this.message = 'Skill deleted successfully';
-      window.scrollTo(0, 0);
-        setTimeout(() => {
-          this.message = '';
-        }, 3000);
+      this.flash('Skill deleted successfully');
     });
   }
 
@@ -154,6 +206,7 @@ export class AdminPanelComponent implements OnInit {
     this.skillForm.reset();
   }
 
+  // ---------- projects ----------
   submitProject(): void {
     if (this.projectForm.invalid) {
       this.projectForm.markAllAsTouched();
@@ -163,7 +216,10 @@ export class AdminPanelComponent implements OnInit {
     const projectPayload: projects = {
       title: this.projectForm.value.title,
       description: this.projectForm.value.description,
-      technology: this.projectForm.value.technology.split(',').map((item: string) => item.trim()).filter(Boolean),
+      technology: this.projectForm.value.technology
+        .split(',')
+        .map((item: string) => item.trim())
+        .filter(Boolean),
       image: this.projectForm.value.image || undefined,
       githubLink: this.projectForm.value.githubLink || undefined,
       publishLink: this.projectForm.value.publishLink || undefined
@@ -173,11 +229,7 @@ export class AdminPanelComponent implements OnInit {
       this.adminService.updateProject(this.editingProjectId, projectPayload).subscribe(() => {
         this.resetProjectForm();
         this.masterService.getAllProtfolioData();
-        this.message = 'Project updated successfully';
-        window.scrollTo(0, 0);
-        setTimeout(() => {
-          this.message = '';
-        }, 3000);
+        this.flash('Project updated successfully');
       });
       return;
     }
@@ -185,11 +237,7 @@ export class AdminPanelComponent implements OnInit {
     this.adminService.addProject(projectPayload).subscribe(() => {
       this.resetProjectForm();
       this.masterService.getAllProtfolioData();
-      this.message = 'Project added successfully';
-      window.scrollTo(0, 0);
-        setTimeout(() => {
-          this.message = '';
-        }, 3000);
+      this.flash('Project added successfully');
     });
   }
 
@@ -209,11 +257,7 @@ export class AdminPanelComponent implements OnInit {
     if (!project.id) return;
     this.adminService.deleteProject(project.id).subscribe(() => {
       this.masterService.getAllProtfolioData();
-      this.message = 'Project deleted successfully';
-      window.scrollTo(0, 0);
-        setTimeout(() => {
-          this.message = '';
-        }, 3000);
+      this.flash('Project deleted successfully');
     });
   }
 
@@ -222,6 +266,7 @@ export class AdminPanelComponent implements OnInit {
     this.projectForm.reset();
   }
 
+  // ---------- profile ----------
   goBack(): void {
     this.router.navigate(['']);
   }
@@ -234,11 +279,7 @@ export class AdminPanelComponent implements OnInit {
 
     this.adminService.updateProfile(this.profileForm.value).subscribe(() => {
       this.masterService.getAllProtfolioData();
-      this.message = 'Profile links updated successfully';
-      window.scrollTo(0, 0);
-        setTimeout(() => {
-          this.message = '';
-        }, 3000);
+      this.flash('Profile links updated successfully');
     });
   }
 
@@ -249,11 +290,7 @@ export class AdminPanelComponent implements OnInit {
 
   uploadCv(): void {
     if (!this.cvFile) {
-      this.message = 'Please choose a PDF file first';
-      window.scrollTo(0, 0);
-        setTimeout(() => {
-          this.message = '';
-        }, 3000);
+      this.flash('Please choose a PDF file first');
       return;
     }
 
@@ -263,20 +300,20 @@ export class AdminPanelComponent implements OnInit {
         this.isUploadingCv = false;
         this.cvFile = null;
         this.masterService.getAllProtfolioData();
-        this.message = 'CV uploaded successfully';
-        window.scrollTo(0, 0);
-        setTimeout(() => {
-          this.message = '';
-        }, 3000);
+        this.flash('CV uploaded successfully');
       },
-      error: () => {
+      error: (err) => {
         this.isUploadingCv = false;
-        this.message = 'CV upload failed';
-        window.scrollTo(0, 0);
-        setTimeout(() => {
-          this.message = '';
-        }, 3000);
+        this.flash(err?.error?.message || 'CV upload failed');
       }
     });
+  }
+
+  private flash(text: string): void {
+    this.message = text;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => {
+      this.message = '';
+    }, 3500);
   }
 }

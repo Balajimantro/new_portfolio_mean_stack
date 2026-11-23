@@ -1,141 +1,128 @@
-import { NgClass } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
-import { ReactiveFormsModule, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MasterService } from '../../services/master.service';
+import { RevealDirective } from '../../shared/reveal.directive';
+import { TiltDirective } from '../../shared/tilt.directive';
 
 export interface ContactInfo {
   label: string;
   value: string;
-};
+}
 
 export interface ContactForm {
   name: string;
   email: string;
-  message: string;
   subject: string;
+  message: string;
+  website?: string;
 }
+
+type FormStatus = 'idle' | 'sending' | 'success' | 'error';
 
 @Component({
   selector: 'app-get-in-touch',
-  imports: [NgClass, ReactiveFormsModule, CommonModule],
+  imports: [ReactiveFormsModule, RevealDirective, TiltDirective],
   templateUrl: './get-in-touch.component.html',
   styleUrl: './get-in-touch.component.css'
 })
-
 export class GetInTouchComponent implements OnInit {
+  readonly getInTouchDescription = 'Have a project in mind, a role to fill, or just want to say hi? My inbox is open.';
 
-  getInTouchDescription: string = `Let's discuss your next project or opportunity`;
+  readonly status = signal<FormStatus>('idle');
+  readonly copied = signal(false);
 
   contactInfo: ContactInfo[] = [];
-  whyWorkWithMe: string[] = []
-  hoveredContactInforIndex: number = -1;
+  whyWorkWithMe: string[] = [];
+  mailId = '';
   contactFrom!: FormGroup;
 
-  constructor(private fb: FormBuilder, private masterServise : MasterService) { }
+  private readonly destroyRef = inject(DestroyRef);
+
+  constructor(private fb: FormBuilder, private masterService: MasterService) {}
 
   ngOnInit(): void {
-    this.initailizeContactForm();
+    this.initializeContactForm();
 
-    this.masterServise.allPortfolioData.subscribe(data => {
+    this.masterService.allPortfolioData
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((data) => {
+        this.mailId = data?.mailId || '';
+        // console.log('ContactInfo:', data);
+        // console.log('mailId:', this.mailId);
+        const info = data?.ContactInfo;
+        this.contactInfo = info?.length
+          ? info
+          : [
+              { label: 'Email', value: this.mailId || 'balajimantro4123@gmail.com' },
+              { label: 'Phone', value: '+91 7397139420' },
+              { label: 'Location', value: 'Tirupathur, Tamil Nadu, India' }
+            ];
 
+        this.whyWorkWithMe = data?.whyWorkWithMe?.length
+          ? data.whyWorkWithMe
+          : [
+              'Clean, maintainable code',
+              'Fast delivery & clear communication',
+              'Modern tech stack expertise',
+              'Startup mindset — I ship'
+            ];
+      });
+  }
 
-      if(data && data.ContactInfo) {
-        this.contactInfo = [];
-        this.contactInfo = data.ContactInfo;
-      } else {
-        this.contactInfo = [
-          {
-            label: 'Email',
-            value: 'balajimantro4123@gmail.com'
-          },
-          {
-            label: 'Phone',
-            value: '+91 7397139420'
-          },
-          {
-            label: 'Location',
-            value: 'Tirupathur, Tamil Nadu, India'
-          }
-        ];
-      };
-
-      if(data && data.whyWorkWithMe) {
-        this.whyWorkWithMe = data.whyWorkWithMe;
-      } else {
-        this.whyWorkWithMe = [
-          'Clean, maintainable code',
-          'Fast delivery & communication',
-          'Modern tech stack expertise',
-          'Startup experience'
-        ];
-      }
-
-    })
-  };
-
-  initailizeContactForm() {
+  initializeContactForm(): void {
     this.contactFrom = this.fb.group({
-      name: new FormControl('', [Validators.required, Validators.pattern('^[a-zA-Z\\s]+$')]),
-      email: new FormControl('', [Validators.required, Validators.pattern('^[a-z0-9._-]+@[a-z.-]+\[.]{1}[a-z]{2,}$')]),
-      message: new FormControl('', [Validators.required, Validators.pattern('^[a-zA-Z\\s]+$')]),
-      subject: new FormControl('', [Validators.required, Validators.pattern('^[a-zA-Z\\s]+$')])
-
-    })
+      name: ['', [Validators.required, Validators.minLength(2), Validators.pattern(/^[\p{L}\s.'-]+$/u)]],
+      email: ['', [Validators.required, Validators.email]],
+      subject: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(120)]],
+      message: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(2000)]],
+      website: ['']
+    });
   }
 
-  get name() {
-    return this.contactFrom.get('name');
+  isInvalid(field: string): boolean {
+    const control = this.contactFrom.get(field);
+    return !!control && control.invalid && (control.touched || control.dirty);
   }
 
-  get email() {
-    return this.contactFrom.get('email');
-  }
+  submitContactForm(): void {
+    if (this.contactFrom.invalid) {
+      this.contactFrom.markAllAsTouched();
+      return;
+    }
 
-  get message() {
-    return this.contactFrom.get('message');
-  }
+    // Honeypot filled → silently pretend success and drop it.
+    if (this.contactFrom.get('website')?.value) {
+      this.contactFrom.reset();
+      this.status.set('success');
+      return;
+    }
 
-  get subject() {
-    return this.contactFrom.get('subject');
-  }
+    this.status.set('sending');
+    const payload = this.contactFrom.value as ContactForm;
 
-  mouseHoveredContactInforIndex(index: number) {
-    this.hoveredContactInforIndex = index;
-  }
-
-  mouseLeavedContactInforIndex() {
-    this.hoveredContactInforIndex = -1;
-  };
-
-  isContactFormSubmitted: boolean = false;
-  processingContactForm: boolean = false;
-  submitContactForm() {
-    if(this.contactFrom.valid) {
-      this.processingContactForm = true;
-      this.masterServise.submitContactForm(this.contactFrom.value).subscribe({
+    this.masterService
+      .submitContactForm(payload)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
         next: () => {
-          this.isContactFormSubmitted = true;
           this.contactFrom.reset();
-          this.scrollToSaveText();
-          this.processingContactForm = false;
-          setTimeout(() => {
-            this.isContactFormSubmitted = false;
-          }, 3000);
-
+          this.status.set('success');
+          setTimeout(() => this.status.set('idle'), 7000);
         },
         error: () => {
+          this.status.set('error');
         }
-      })
-    } else {
-      this.contactFrom.markAllAsTouched();
-    }
-  };
+      });
+  }
 
-  scrollToSaveText() {
-    const element = document.getElementById('getInTouch_contact_form_id');
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  async copyEmail(email: string): Promise<void> {
+    try {
+      await navigator.clipboard.writeText(email);
+      this.copied.set(true);
+      setTimeout(() => this.copied.set(false), 1800);
+    } catch {
+      /* clipboard unavailable */
     }
   }
 }
